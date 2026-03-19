@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.21)
 project(BetterSearch)
 
-# 🔥 REQUIRED: include Geode
-include($ENV{GEODE_SDK}/cmake/Geode.cmake)
+# 🔥 THIS is the correct modern include
+find_package(Geode REQUIRED)
 
 # Create mod
 geode_add_mod(${PROJECT_NAME}
@@ -12,5 +12,5 @@ geode_add_mod(${PROJECT_NAME}
     src/FuzzyText.cpp
 )
 
-# Add resources (images)
+# Resources
 geode_add_resources(${PROJECT_NAME} resources)
