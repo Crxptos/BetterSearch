@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 3.21)
 project(BetterSearch)
 
+# ✅ Load Geode properly
+find_package(Geode REQUIRED)
+
 add_library(${PROJECT_NAME} SHARED
     src/BetterSearchMain.cpp
     src/BetterSearchSong.cpp
@@ -8,7 +11,5 @@ add_library(${PROJECT_NAME} SHARED
     src/FuzzyText.cpp
 )
 
-target_include_directories(${PROJECT_NAME} PRIVATE src)
-
-# 👇 THIS is the correct link for the action
-target_link_libraries(${PROJECT_NAME} geode)
+# ✅ THIS gives you <Geode/...> headers
+target_link_libraries(${PROJECT_NAME} Geode::Geode)
