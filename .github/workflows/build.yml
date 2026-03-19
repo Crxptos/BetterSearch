@@ -3,24 +3,13 @@ on: [push, pull_request]
 
 jobs:
   build:
-    strategy:
-      fail-fast: false
-      matrix:
-        config:
-        - name: Windows
-          os: windows-latest
-        - name: Android
-          os: ubuntu-latest
-          target: Android64
-
-    name: ${{ matrix.config.name }}
-    runs-on: ${{ matrix.config.os }}
-
+    runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
 
       - name: Build Mod
         uses: geode-sdk/build-geode-mod@main
         with:
-          sdk: 'latest'  # Downloads the SDK to a folder CMake can find
+          sdk: latest
+          build-config: Release
           combine: true
