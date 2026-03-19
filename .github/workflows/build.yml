@@ -16,16 +16,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # ✅ Official Geode setup (handles profile automatically)
-      - name: Setup Geode
+      # 🔥 Setup Geode AND keep profile
+      - name: Setup Geode CLI
         uses: geode-sdk/cli/.github/actions/setup@main
 
-      # ✅ FIX: install binaries AFTER setup
-      - name: Install Geode binaries
-        run: geode sdk install-binaries
+      # 🔥 CRITICAL FIX: reuse same profile path
+      - name: Install binaries (FIXED)
+        run: |
+          export CLI_PROFILE="$GITHUB_WORKSPACE/cli-profile"
+          geode sdk install-binaries
 
-      # ✅ Build
+      # 🔥 Build using SAME profile
       - name: Build mod
-        uses: geode-sdk/build-geode-mod@main
-        with:
-          platform: ${{ matrix.platform }}
+        run: |
+          export CLI_PROFILE="$GITHUB_WORKSPACE/cli-profile"
+          geode build -p ${{ matrix.platform }}
