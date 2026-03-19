@@ -1,14 +1,15 @@
 {
-    "geode": "5.0.0",
-    "gd": {
-        "win": "2.2081",
-        "android": "2.2081",
-        "mac": "2.2081",
-        "ios": "2.2081"
-    },
-    "id": "crxptos.bettersearch",
-    "version": "v1.0.0",
-    "name": "BetterSearch",
-    "developer": "crxptos",
-    "description": "Improved search functionality for Geometry Dash."
+  "id": "crxptos.bettersearch",
+  "name": "BetterSearch",
+  "version": "1.0.0",
+  "developer": "Crxptos",
+  "description": "Enhances search in Geometry Dash with song name support, fuzzy search, and improved UI.",
+
+  "geode": ">=2.0.0",
+
+  "resources": {
+    "sprites": [
+      "BetterSearchButton.png"
+    ]
+  }
 }
