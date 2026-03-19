@@ -1,8 +1,9 @@
 cmake_minimum_required(VERSION 3.21)
 project(BetterSearch)
 
-# ✅ THIS is the correct include (environment variable)
-include($ENV{GEODE_SDK}/cmake/Geode.cmake)
+include(cmake/CPM.cmake)
+
+CPMAddPackage("gh:geode-sdk/geode#v5.3.0")
 
 geode_add_mod(${PROJECT_NAME}
     src/BetterSearchMain.cpp
