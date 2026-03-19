@@ -17,20 +17,17 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Setup Geode CLI
+      # Setup Geode (this already creates a profile)
       - name: Setup Geode
         uses: geode-sdk/cli/.github/actions/setup@main
 
-      # 🔧 CREATE PROFILE (THIS FIXES YOUR ERROR)
-      - name: Setup Geode Profile
-        run: |
-          geode config setup --profile GithubActions
+      # 🔧 IMPORTANT: set CLI_PROFILE so commands use the created profile
+      - name: Set CLI Profile
+        run: echo "CLI_PROFILE=$GITHUB_WORKSPACE/cli-profile" >> $GITHUB_ENV
 
-      # 🔧 Install SDK + binaries
-      - name: Install Geode SDK & Binaries
-        run: |
-          geode sdk install
-          geode sdk install-binaries
+      # 🔧 Install binaries (now it knows where the profile is)
+      - name: Install Geode Binaries
+        run: geode sdk install-binaries
 
       # 🚀 Build
       - name: Build mod
