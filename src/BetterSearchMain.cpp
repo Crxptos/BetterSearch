@@ -4,7 +4,7 @@
 
 using namespace geode::prelude;
 
-class $modify(BetterSearchLayer, LevelSearchLayer) {
+class $modify(BetterSearchMain, LevelSearchLayer) {
 
     void onSearch(CCObject* sender) {
         std::string query = this->m_searchInput->getString();
