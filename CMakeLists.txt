@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.21)
 project(BetterSearch)
 
-# ✅ Use the environment variable (THIS is the fix)
+# ✅ THIS is the correct include (environment variable)
 include($ENV{GEODE_SDK}/cmake/Geode.cmake)
 
 geode_add_mod(${PROJECT_NAME}
