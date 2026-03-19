@@ -16,25 +16,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # Setup Geode CLI
-      - name: Setup Geode CLI
-        uses: geode-sdk/cli/.github/actions/setup@main
-
-      # 🔥 Create profile manually (NO interactive input)
-      - name: Create Geode profile
-        run: |
-          export CLI_PROFILE="$GITHUB_WORKSPACE/cli-profile"
-          mkdir -p "$CLI_PROFILE"
-          echo '{}' > "$CLI_PROFILE/config.json"
-
-      # 🔥 Install binaries into that profile
-      - name: Install binaries
-        run: |
-          export CLI_PROFILE="$GITHUB_WORKSPACE/cli-profile"
-          geode sdk install-binaries
-
-      # 🔥 Build mod
       - name: Build mod
-        run: |
-          export CLI_PROFILE="$GITHUB_WORKSPACE/cli-profile"
-          geode build -p ${{ matrix.platform }}
+        uses: geode-sdk/build-geode-mod@main
+        with:
+          platform: ${{ matrix.platform }}
