@@ -1,40 +1,22 @@
 name: Build Geode Mod
 
 on:
-push:
-pull_request:
+  push:
+  pull_request:
 
 jobs:
-build:
-runs-on: ubuntu-latest
+  build:
+    runs-on: ubuntu-latest
 
-steps:
-  - name: Checkout repo
-    uses: actions/checkout@v4
+    strategy:
+      matrix:
+        platform: [android32, android64, win]
 
-  - name: Setup Geode CLI
-    uses: geode-sdk/cli/.github/actions/setup@main
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
 
-  # 🔥 Force correct platform binaries
-  - name: Install Geode Binaries
-    run: |
-      geode sdk install-binaries android64
-
-  # 🔥 Ensure env is correct
-  - name: Verify SDK
-    run: |
-      echo "GEODE_SDK=$GEODE_SDK"
-      ls $GEODE_SDK
-
-  # ✅ Build for Android64 ONLY (fixes your error)
-  - name: Build Mod
-    uses: geode-sdk/build-geode-mod@main
-    with:
-      target: android64
-
-  # (Optional) Upload built mod
-  - name: Upload Artifact
-    uses: actions/upload-artifact@v4
-    with:
-      name: BetterSearch-android64
-      path: build/**/*.geode
+      - name: Build mod
+        uses: geode-sdk/build-geode-mod@main
+        with:
+          target: ${{ matrix.platform }}
