@@ -22,7 +22,5 @@ jobs:
       - name: Build Mod
         uses: geode-sdk/build-geode-mod@main
         with:
-          # This line is the key! It installs the SDK for CMake to find.
-          sdk: 'latest'
-          target: ${{ matrix.config.target }}
+          sdk: 'latest'  # Downloads the SDK to a folder CMake can find
           combine: true
