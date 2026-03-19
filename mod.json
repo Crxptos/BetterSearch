@@ -3,9 +3,9 @@
   "name": "BetterSearch",
   "version": "1.0.0",
   "developer": "Crxptos",
-  "description": "Enhances search in Geometry Dash with song name support, fuzzy search, and improved UI.",
+  "description": "Enhances search in Geometry Dash with song name support, fuzzy search, and improved UI",
 
-  "geode": ">=2.0.0",
+  "geode": "v5.3.0",
 
   "resources": {
     "sprites": [
