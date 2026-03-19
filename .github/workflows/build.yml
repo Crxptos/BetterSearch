@@ -9,7 +9,7 @@ jobs:
         config:
         - name: Windows
           os: windows-latest
-        - name: Android64
+        - name: Android
           os: ubuntu-latest
           target: Android64
 
@@ -22,7 +22,7 @@ jobs:
       - name: Build Mod
         uses: geode-sdk/build-geode-mod@main
         with:
+          # This line is the key! It installs the SDK for CMake to find.
           sdk: 'latest'
           target: ${{ matrix.config.target }}
-          build-config: 'RelWithDebInfo'
           combine: true
