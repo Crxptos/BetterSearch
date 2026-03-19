@@ -1,13 +1,12 @@
 cmake_minimum_required(VERSION 3.25)
 
-# This line tells CMake where the SDK is located on GitHub's servers
-if(NOT DEFINED Geode_DIR AND DEFINED ENV{GEODE_SDK})
-    set(Geode_DIR "$ENV{GEODE_SDK}")
-endif()
+# This tells CMake where to look for the Geode-config.cmake file
+# $ENV{GEODE_SDK} is set by the GitHub Action automatically
+set(CMAKE_PREFIX_PATH $ENV{GEODE_SDK})
 
 project(BetterSearch)
 
-# Now find the package using the path set above
+# Now it will check the CMAKE_PREFIX_PATH we just set
 find_package(Geode REQUIRED)
 
 add_geode_mod(
