@@ -17,6 +17,15 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      # 🔧 Install Geode CLI + SDK properly
+      - name: Setup Geode
+        uses: geode-sdk/cli/.github/actions/setup@main
+
+      # 🔧 IMPORTANT: install binaries manually (THIS FIXES YOUR ERROR)
+      - name: Install Geode Binaries
+        run: geode sdk install-binaries
+
+      # 🚀 Build
       - name: Build mod
         uses: geode-sdk/build-geode-mod@main
         with:
