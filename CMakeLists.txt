@@ -1,14 +1,13 @@
-cmake_minimum_required(VERSION 3.25)
-
-# This line forces CMake to look in the GitHub Action's SDK folder
-set(CMAKE_PREFIX_PATH $ENV{GEODE_SDK})
-
+cmake_minimum_required(VERSION 3.21)
 project(BetterSearch)
 
-# This should now find the package successfully
-find_package(Geode REQUIRED)
+add_library(${PROJECT_NAME} SHARED
+    src/BetterSearchMain.cpp
+    src/BetterSearchSong.cpp
+    src/BetterSearchLevels.cpp
+    src/FuzzyText.cpp
+)
 
-add_geode_mod(
-    crxptos.bettersearch
-    SOURCES BetterSearchMain.cpp
-    )
+target_link_libraries(${PROJECT_NAME} geode-sdk)
+
+geode_add_resources(${PROJECT_NAME} resources)
