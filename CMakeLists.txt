@@ -10,5 +10,5 @@ find_package(Geode REQUIRED)
 
 add_geode_mod(
     crxptos.bettersearch
-    SOURCES BetterSearch.cpp
-)
+    SOURCES BetterSearchMain.cpp
+    )
