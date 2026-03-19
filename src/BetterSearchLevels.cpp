@@ -1,0 +1,88 @@
+#include <Geode/Geode.hpp>
+#include <Geode/modify/LevelSearchLayer.hpp>
+#include <Geode/ui/ScrollLayer.hpp>
+
+using namespace geode::prelude;
+
+class $modify(BetterSearchLevels, LevelSearchLayer) {
+    ScrollLayer* m_scroll = nullptr;
+    CCLayer* m_content = nullptr;
+
+    std::vector<std::string> m_results;
+
+    bool init(int p0) {
+        if (!LevelSearchLayer::init(p0)) return false;
+
+        // 📜 Create scrollable area
+        m_scroll = ScrollLayer::create({300, 200});
+        m_scroll->setPosition({50, 100});
+        this->addChild(m_scroll);
+
+        // 📦 Content layer inside scroll
+        m_content = CCLayer::create();
+        m_scroll->m_contentLayer->addChild(m_content);
+
+        return true;
+    }
+
+    // 🔗 Called from BetterSearchMain.cpp
+    void updateBetterSearchUI(std::vector<std::string> results) {
+        m_results = results;
+
+        // Clear old results
+        m_content->removeAllChildren();
+
+        float y = results.size() * 35;
+
+        for (int i = 0; i < results.size(); i++) {
+            // Background
+            auto bg = CCScale9Sprite::create("square02_small.png");
+            bg->setContentSize({280, 30});
+            bg->setOpacity(i % 2 == 0 ? 40 : 60);
+
+            // Text
+            auto label = CCLabelBMFont::create(results[i].c_str(), "bigFont.fnt");
+            label->setAnchorPoint({0, 0.5f});
+            label->setPosition({10, 15});
+            label->setScale(0.5f);
+
+            bg->addChild(label);
+
+            // Clickable button (touch-friendly)
+            auto btn = CCMenuItemSpriteExtra::create(
+                bg,
+                this,
+                menu_selector(BetterSearchLevels::onResult)
+            );
+
+            btn->setTag(i);
+            btn->setPosition({150, y});
+
+            this->m_buttonMenu->addChild(btn);
+
+            y -= 35;
+        }
+
+        // Update scroll size
+        m_content->setContentSize({300, results.size() * 35});
+        m_scroll->updateLayout();
+    }
+
+    // 👆 When user taps a result
+    void onResult(CCObject* sender) {
+        auto btn = static_cast<CCMenuItemSpriteExtra*>(sender);
+        int index = btn->getTag();
+
+        if (index < 0 || index >= m_results.size()) return;
+
+        std::string selected = m_results[index];
+
+        log::info("Selected: {}", selected);
+
+        // Fill search box
+        this->m_searchInput->setString(selected.c_str());
+
+        // Run real GD search
+        LevelSearchLayer::onSearch(nullptr);
+    }
+};
