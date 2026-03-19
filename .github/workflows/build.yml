@@ -15,6 +15,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # ✅ Setup Geode (this installs SDK)
+      - name: Setup Geode
+        uses: geode-sdk/cli/.github/actions/setup@main
+
+      # ✅ Export GEODE_SDK so CMake can see it
+      - name: Export GEODE_SDK
+        run: echo "GEODE_SDK=$HOME/.geode/sdk" >> $GITHUB_ENV
+
+      # ✅ Build mod
       - name: Build mod
         uses: geode-sdk/build-geode-mod@main
         with:
