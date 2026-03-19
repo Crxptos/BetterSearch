@@ -1,13 +1,17 @@
 cmake_minimum_required(VERSION 3.25)
 
-# This name can be anything, usually matches your mod name
+# 1. This block helps CMake find Geode on GitHub Actions
+if(NOT DEFINED Geode_DIR AND DEFINED env.GEODE_SDK)
+    set(Geode_DIR "${env.GEODE_SDK}")
+endif()
+
 project(BetterSearch)
 
-# Find Geode SDK (Required for the GitHub Action)
+# 2. Find the SDK
 find_package(Geode REQUIRED)
 
-# Setup the mod using your ID
+# 3. Create the mod
 add_geode_mod(
-    crxptos.bettersearch # Your Mod ID
-    SOURCES BetterSearch.cpp       # Change this if your file isn't named main.cpp
+    crxptos.bettersearch
+    SOURCES BetterSearch.cpp
 )
