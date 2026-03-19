@@ -1,10 +1,9 @@
 cmake_minimum_required(VERSION 3.21)
 project(BetterSearch)
 
-# ✅ This is the missing piece
+# ✅ Use the environment variable (THIS is the fix)
 include($ENV{GEODE_SDK}/cmake/Geode.cmake)
 
-# ✅ Proper Geode mod setup
 geode_add_mod(${PROJECT_NAME}
     src/BetterSearchMain.cpp
     src/BetterSearchSong.cpp
@@ -12,5 +11,4 @@ geode_add_mod(${PROJECT_NAME}
     src/FuzzyText.cpp
 )
 
-# ✅ Resources
 geode_add_resources(${PROJECT_NAME} resources)
