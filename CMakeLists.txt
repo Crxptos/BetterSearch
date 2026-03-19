@@ -1,8 +1,14 @@
 cmake_minimum_required(VERSION 3.21)
 project(BetterSearch)
 
-# ✅ Load Geode properly
-find_package(Geode REQUIRED)
+# ✅ THIS is the correct way for Geode mods
+include(${CMAKE_SOURCE_DIR}/cmake/CPM.cmake)
+
+CPMAddPackage(
+    NAME Geode
+    GITHUB_REPOSITORY geode-sdk/geode
+    GIT_TAG v5.3.0
+)
 
 add_library(${PROJECT_NAME} SHARED
     src/BetterSearchMain.cpp
@@ -11,5 +17,4 @@ add_library(${PROJECT_NAME} SHARED
     src/FuzzyText.cpp
 )
 
-# ✅ THIS gives you <Geode/...> headers
-target_link_libraries(${PROJECT_NAME} Geode::Geode)
+target_link_libraries(${PROJECT_NAME} Geode)
