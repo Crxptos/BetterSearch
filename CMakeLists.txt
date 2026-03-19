@@ -1,16 +1,14 @@
 cmake_minimum_required(VERSION 3.21)
 project(BetterSearch)
 
-# 🔥 THIS is the correct modern include
-find_package(Geode REQUIRED)
-
-# Create mod
-geode_add_mod(${PROJECT_NAME}
+add_library(${PROJECT_NAME} SHARED
     src/BetterSearchMain.cpp
     src/BetterSearchSong.cpp
     src/BetterSearchLevels.cpp
     src/FuzzyText.cpp
 )
 
-# Resources
-geode_add_resources(${PROJECT_NAME} resources)
+target_include_directories(${PROJECT_NAME} PRIVATE src)
+
+# 👇 THIS is the correct link for the action
+target_link_libraries(${PROJECT_NAME} geode)
