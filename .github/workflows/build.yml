@@ -14,21 +14,8 @@ jobs:
         platform: [android32, android64, win64]
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      # Setup CLI
-      - name: Setup Geode CLI
-        uses: geode-sdk/cli/.github/actions/setup@main
-
-      # 🔥 DO EVERYTHING IN ONE STEP (CRITICAL)
-      - name: Install SDK + Binaries
-        run: |
-          geode config setup
-          geode sdk install
-          geode sdk install-binaries
-
-      # 🚀 Build
       - name: Build mod
         uses: geode-sdk/build-geode-mod@main
         with:
