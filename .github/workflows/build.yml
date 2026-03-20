@@ -18,17 +18,7 @@ steps:
   - name: Setup Geode profile
     run: |
       mkdir -p "$GEODE_CLI_HOME"
-      cat > "$GEODE_CLI_HOME/config.json" <<EOF
-
-{
-"currentProfile": "default",
-"profiles": {
-"default": {
-"name": "default"
-}
-}
-}
-EOF
+      echo '{"currentProfile":"default","profiles":{"default":{"name":"default"}}}' > "$GEODE_CLI_HOME/config.json"
 
   - name: Setup Geode CLI
     uses: geode-sdk/cli/.github/actions/setup@main
