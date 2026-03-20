@@ -8,6 +8,10 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    strategy:
+      matrix:
+        platform: [android64, win64]
+
     env:
       GEODE_CLI_HOME: ${{ github.workspace }}/geode-cli
 
@@ -15,20 +19,16 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Create Geode CLI profile (FIXED)
+      # ✅ Create Geode profile manually (FIXES YOUR ERROR)
+      - name: Setup Geode Profile
         run: |
           mkdir -p "$GEODE_CLI_HOME"
-          cat > "$GEODE_CLI_HOME/config.json" <<EOF
-{
-  "currentProfile": "default",
-  "profiles": {
-    "default": {
-      "name": "default",
-      "sdkVersion": "5.3.0"
-    }
-  }
-}
-EOF
+          echo '{
+            "currentProfile": "default",
+            "profiles": {
+              "default": {}
+            }
+          }' > "$GEODE_CLI_HOME/config.json"
 
       - name: Setup Geode CLI
         uses: geode-sdk/cli/.github/actions/setup@main
@@ -38,9 +38,10 @@ EOF
           geode sdk install
           geode sdk update
 
-      - name: Install Android64 binaries
+      # ✅ IMPORTANT: pass platform correctly
+      - name: Install Binaries
         run: |
-          geode sdk install-binaries --platform android64
+          geode sdk install-binaries --platform ${{ matrix.platform }}
 
       - name: Build
         run: |
