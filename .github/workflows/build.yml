@@ -9,13 +9,15 @@ jobs:
     runs-on: ubuntu-latest
 
     strategy:
+      fail-fast: false
       matrix:
-        platform: [android32]
+        platform: [android64, win64]
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
       - name: Build mod
         uses: geode-sdk/build-geode-mod@main
         with:
-          platform: ${{ matrix.platform }}
+          target: ${{ matrix.platform }}
