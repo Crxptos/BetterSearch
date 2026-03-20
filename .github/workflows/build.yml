@@ -8,6 +8,9 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    env:
+      GEODE_CLI_HOME: ${{ github.workspace }}/geode-cli
+
     strategy:
       fail-fast: false
       matrix:
@@ -20,29 +23,24 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # Install dependencies
       - name: Install dependencies
         run: sudo apt-get update && sudo apt-get install -y ninja-build
 
-      # Install Geode CLI
       - name: Setup Geode CLI
         uses: geode-sdk/cli/.github/actions/setup@main
 
-      # Create non-interactive CLI profile (fixes crash)
+      # ✅ FIX: create config in the CORRECT location
       - name: Setup Geode profile
         run: |
-          mkdir -p ~/.config/geode
-          echo '{"currentProfile":"default","profiles":{"default":{"name":"default"}}}' > ~/.config/geode/config.json
+          mkdir -p "$GEODE_CLI_HOME"
+          echo '{"currentProfile":"default","profiles":{"default":{"name":"default"}}}' > "$GEODE_CLI_HOME/config.json"
 
-      # Install SDK
       - name: Install SDK
         run: geode sdk install
 
-      # Install binaries (REQUIRED for Codegen)
       - name: Install binaries
         run: geode sdk install-binaries --platform ${{ matrix.cli }}
 
-      # Build with CMake + CPM
       - name: Build
         run: |
           mkdir build
