@@ -9,6 +9,7 @@ jobs:
     runs-on: ubuntu-latest
 
     strategy:
+      fail-fast: false
       matrix:
         platform: [android64, win64]
 
@@ -19,30 +20,32 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # ✅ Create Geode profile manually (FIXES YOUR ERROR)
-      - name: Setup Geode Profile
+      # ✅ Install Geode CLI
+      - name: Setup Geode CLI
+        uses: geode-sdk/cli/.github/actions/setup@main
+
+      # ✅ FORCE create config (fixes "No Geode profiles found")
+      - name: Create Geode config
         run: |
           mkdir -p "$GEODE_CLI_HOME"
           echo '{
             "currentProfile": "default",
             "profiles": {
-              "default": {}
+              "default": {
+                "name": "default"
+              }
             }
           }' > "$GEODE_CLI_HOME/config.json"
 
-      - name: Setup Geode CLI
-        uses: geode-sdk/cli/.github/actions/setup@main
-
+      # ✅ Install SDK (now works)
       - name: Install SDK
-        run: |
-          geode sdk install
-          geode sdk update
+        run: geode sdk install
 
-      # ✅ IMPORTANT: pass platform correctly
-      - name: Install Binaries
-        run: |
-          geode sdk install-binaries --platform ${{ matrix.platform }}
+      # ✅ Install binaries (THIS fixes your loader error)
+      - name: Install binaries
+        run: geode sdk install-binaries --platform ${{ matrix.platform }}
 
+      # ✅ Build
       - name: Build
         run: |
           mkdir build
