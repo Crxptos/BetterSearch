@@ -15,14 +15,17 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      # ✅ Install CLI FIRST
+      - name: Setup Geode CLI
+        uses: geode-sdk/cli/.github/actions/setup@main
+
+      # ✅ THEN create profile (after CLI exists)
       - name: Setup Geode profile
         run: |
           mkdir -p "$CLI_PROFILE"
           echo '{"currentProfile":"default","profiles":{"default":{"name":"default"}}}' > "$CLI_PROFILE/config.json"
 
-      - name: Setup Geode CLI
-        uses: geode-sdk/cli/.github/actions/setup@main
-
+      # ✅ Now CLI can see the profile
       - name: Install SDK
         run: |
           geode sdk install
