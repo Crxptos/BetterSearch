@@ -1,5 +1,4 @@
 name: Build Geode Mod
-
 on:
 push:
 pull_request:
@@ -18,16 +17,15 @@ steps:
     run: |
       mkdir -p "$GEODE_CLI_HOME"
       cat > "$GEODE_CLI_HOME/config.json" <<EOF
-
-{
-"currentProfile": "default",
-"profiles": {
-"default": {
-"name": "default"
-}
-}
-}
-EOF
+      {
+        "currentProfile": "default",
+        "profiles": {
+          "default": {
+            "name": "default"
+          }
+        }
+      }
+      EOF
 
   - name: Setup Geode CLI
     uses: geode-sdk/cli/.github/actions/setup@main
