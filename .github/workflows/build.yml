@@ -11,14 +11,26 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        platform: [android64, win64]
+        platform: [android64, win64] # (skip android32 for now)
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+
+      - name: Setup Geode CLI
+        uses: geode-sdk/cli/.github/actions/setup@main
+
+      - name: Setup Geode SDK
+        run: |
+          geode sdk install
+          geode sdk update
+
+      - name: Install platform binaries
+        run: |
+          geode sdk install-binaries --platform ${{ matrix.platform }}
 
       - name: Build mod
-        uses: geode-sdk/build-geode-mod@main
-        env:
-          GEODE_TARGET_PLATFORM: ${{ matrix.platform }}
-          GEODE_SDK: ${{ github.workspace }}/.geode
+        run: |
+          mkdir build
+          cd build
+          cmake .. -G Ninja
+          cmake --build .
