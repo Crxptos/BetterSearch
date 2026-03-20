@@ -14,23 +14,33 @@ jobs:
         target: [android64, win64]
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      # ✅ Setup Geode CLI (handles SDK + profile automatically)
+      # ✅ Install CLI FIRST
       - name: Setup Geode CLI
         uses: geode-sdk/cli/.github/actions/setup@main
 
-      # ✅ Install SDK
+      # ✅ Create profile in REAL location (~/.geode)
+      - name: Create Geode profile
+        run: |
+          mkdir -p ~/.geode
+          echo '{
+            "currentProfile": "default",
+            "profiles": {
+              "default": {
+                "name": "default"
+              }
+            }
+          }' > ~/.geode/config.json
+
+      # ✅ Now this WILL work
       - name: Install SDK
         run: geode sdk install
 
-      # ✅ Install correct binaries per platform
       - name: Install Binaries
         run: geode sdk install-binaries --platform ${{ matrix.target }}
 
-      # ✅ Build using official Geode action
-      - name: Build Mod
+      - name: Build
         uses: geode-sdk/build-geode-mod@main
         with:
           target: ${{ matrix.target }}
