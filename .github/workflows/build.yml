@@ -11,17 +11,24 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        platform: [Android64, Win64]
+        include:
+          - platform: Android64
+            cli: android64
+          - platform: Win64
+            cli: win64
 
     steps:
       - uses: actions/checkout@v4
 
+      # Install dependencies
       - name: Install dependencies
         run: sudo apt-get update && sudo apt-get install -y ninja-build
 
-      - name: Build
+      # Install Geode CLI
+      - name: Setup Geode CLI
+        uses: geode-sdk/cli/.github/actions/setup@main
+
+      # Create non-interactive CLI profile (fixes crash)
+      - name: Setup Geode profile
         run: |
-          mkdir build
-          cd build
-          cmake .. -G Ninja -DGEODE_TARGET_PLATFORM=${{ matrix.platform }}
-          cmake --build .
+          mkdir -p
