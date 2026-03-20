@@ -1,9 +1,6 @@
 cmake_minimum_required(VERSION 3.21)
 project(BetterSearch)
 
-# 🔥 ADD THIS LINE
-set(GEODE_TARGET_PLATFORM android64)
-
 include(cmake/CPM.cmake)
 
 CPMAddPackage(
