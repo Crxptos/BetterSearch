@@ -8,42 +8,15 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
-    env:
-      GEODE_CLI_HOME: ${{ github.workspace }}/geode-cli
-
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - platform: Android64
-            cli: android64
-          - platform: Win64
-            cli: win64
+        target: [android64, win64]
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install dependencies
-        run: sudo apt-get update && sudo apt-get install -y ninja-build
-
-      - name: Setup Geode CLI
-        uses: geode-sdk/cli/.github/actions/setup@main
-
-      # 🔥 REAL FIX
-      - name: Setup Geode profile
-        run: |
-          mkdir -p "$GEODE_CLI_HOME"
-          printf "default\n" | geode config setup
-
-      - name: Install SDK
-        run: geode sdk install
-
-      - name: Install binaries
-        run: geode sdk install-binaries --platform ${{ matrix.cli }}
-
-      - name: Build
-        run: |
-          mkdir build
-          cd build
-          cmake .. -G Ninja -DGEODE_TARGET_PLATFORM=${{ matrix.platform }}
-          cmake --build .
+      - name: Build Mod
+        uses: geode-sdk/build-geode-mod@main
+        with:
+          target: ${{ matrix.target }}
