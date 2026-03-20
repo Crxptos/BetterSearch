@@ -15,20 +15,23 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Geode CLI
-        uses: geode-sdk/cli/.github/actions/setup@main
-
-      - name: Create Geode profile (NON-INTERACTIVE FIX)
+      - name: Create Geode CLI profile (FIXED)
         run: |
           mkdir -p "$GEODE_CLI_HOME"
-          echo '{
-            "currentProfile": "default",
-            "profiles": {
-              "default": {
-                "name": "default"
-              }
-            }
-          }' > "$GEODE_CLI_HOME/config.json"
+          cat > "$GEODE_CLI_HOME/config.json" <<EOF
+{
+  "currentProfile": "default",
+  "profiles": {
+    "default": {
+      "name": "default",
+      "sdkVersion": "5.3.0"
+    }
+  }
+}
+EOF
+
+      - name: Setup Geode CLI
+        uses: geode-sdk/cli/.github/actions/setup@main
 
       - name: Install SDK
         run: |
@@ -36,7 +39,8 @@ jobs:
           geode sdk update
 
       - name: Install Android64 binaries
-        run: geode sdk install-binaries --platform android64
+        run: |
+          geode sdk install-binaries --platform android64
 
       - name: Build
         run: |
