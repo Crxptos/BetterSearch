@@ -19,6 +19,5 @@ jobs:
 
       - name: Build mod
         uses: geode-sdk/build-geode-mod@main
-        with:
-          target: ${{ matrix.platform }}
-          configure-args: -DGEODE_TARGET_PLATFORM=${{ matrix.platform }}
+        env:
+          GEODE_TARGET_PLATFORM: ${{ matrix.platform }}
