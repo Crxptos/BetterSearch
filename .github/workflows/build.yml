@@ -8,6 +8,9 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    env:
+      GEODE_CLI_HOME: ${{ github.workspace }}/geode-cli
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -15,18 +18,24 @@ jobs:
       - name: Setup Geode CLI
         uses: geode-sdk/cli/.github/actions/setup@main
 
-      # ✅ FORCE create profile (non-interactive workaround)
-      - name: Create Geode profile
+      - name: Create Geode profile (NON-INTERACTIVE FIX)
         run: |
-          mkdir -p ~/.geode
-          echo '{"currentProfile":"default","profiles":{"default":{"name":"default"}}}' > ~/.geode/config.json
+          mkdir -p "$GEODE_CLI_HOME"
+          echo '{
+            "currentProfile": "default",
+            "profiles": {
+              "default": {
+                "name": "default"
+              }
+            }
+          }' > "$GEODE_CLI_HOME/config.json"
 
       - name: Install SDK
         run: |
           geode sdk install
           geode sdk update
 
-      - name: Install binaries
+      - name: Install Android64 binaries
         run: |
           geode sdk install-binaries --platform android64
 
