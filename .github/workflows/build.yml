@@ -29,11 +29,11 @@ jobs:
       - name: Setup Geode CLI
         uses: geode-sdk/cli/.github/actions/setup@main
 
-      # ✅ FIX: create config in the CORRECT location
+      # 🔥 REAL FIX
       - name: Setup Geode profile
         run: |
           mkdir -p "$GEODE_CLI_HOME"
-          echo '{"currentProfile":"default","profiles":{"default":{"name":"default"}}}' > "$GEODE_CLI_HOME/config.json"
+          printf "default\n" | geode config setup
 
       - name: Install SDK
         run: geode sdk install
