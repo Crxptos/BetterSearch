@@ -21,3 +21,4 @@ jobs:
         uses: geode-sdk/build-geode-mod@main
         env:
           GEODE_TARGET_PLATFORM: ${{ matrix.platform }}
+          GEODE_SDK: ${{ github.workspace }}/.geode
