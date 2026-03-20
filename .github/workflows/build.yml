@@ -11,47 +11,37 @@ runs-on: ubuntu-latest
 env:
   GEODE_CLI_HOME: ${{ github.workspace }}/geode-cli
 
-strategy:
-  fail-fast: false
-  matrix:
-    platform: [android64, win64]
-
 steps:
-  - name: Checkout repository
-    uses: actions/checkout@v4
+  - uses: actions/checkout@v4
 
-  # ✅ Create NON-INTERACTIVE Geode profile (fixes your error)
   - name: Setup Geode profile
     run: |
       mkdir -p "$GEODE_CLI_HOME"
       cat > "$GEODE_CLI_HOME/config.json" <<EOF
-      {
-        "currentProfile": "default",
-        "profiles": {
-          "default": {
-            "name": "default"
-          }
-        }
-      }
-      EOF
 
-  # ✅ Install Geode CLI
+{
+"currentProfile": "default",
+"profiles": {
+"default": {
+"name": "default"
+}
+}
+}
+EOF
+
   - name: Setup Geode CLI
     uses: geode-sdk/cli/.github/actions/setup@main
 
-  # ✅ Install SDK
-  - name: Install Geode SDK
+  - name: Install SDK
     run: |
       geode sdk install
       geode sdk update
 
-  # ✅ Install correct binaries PER platform (CRITICAL FIX)
-  - name: Install platform binaries
+  - name: Install binaries
     run: |
-      geode sdk install-binaries --platform ${{ matrix.platform }}
+      geode sdk install-binaries --platform android64
 
-  # ✅ Build
-  - name: Build mod
+  - name: Build
     run: |
       mkdir build
       cd build
