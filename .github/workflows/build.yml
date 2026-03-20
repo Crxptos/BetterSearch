@@ -11,12 +11,40 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        target: [android64, win64]
+        platform: [android64, win64]
 
     steps:
       - uses: actions/checkout@v4
 
+      # Install Geode CLI
+      - name: Setup Geode CLI
+        uses: geode-sdk/cli/.github/actions/setup@main
+
+      # Create profile (FIXES "No profiles found")
+      - name: Create Geode profile
+        run: |
+          mkdir -p ~/.geode
+          echo '{
+            "currentProfile": "default",
+            "profiles": {
+              "default": {
+                "name": "default"
+              }
+            }
+          }' > ~/.geode/config.json
+
+      # Install SDK
+      - name: Install SDK
+        run: geode sdk install
+
+      # Install binaries (FIXES platform error)
+      - name: Install Binaries
+        run: geode sdk install-binaries --platform ${{ matrix.platform }}
+
+      # Build manually with CMake
       - name: Build
-        uses: geode-sdk/build-geode-mod@main
-        with:
-          target: ${{ matrix.target }}
+        run: |
+          mkdir build
+          cd build
+          cmake .. -G Ninja
+          cmake --build .
