@@ -11,24 +11,32 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        platform: [android64, win64] # (skip android32 for now)
+        platform: [android64] # start simple
 
     steps:
       - uses: actions/checkout@v4
 
+      # ✅ Fix: create CLI profile
+      - name: Setup Geode profile
+        run: |
+          export GEODE_CLI_HOME="$GITHUB_WORKSPACE/geode-cli"
+          mkdir -p "$GEODE_CLI_HOME"
+          echo "{}" > "$GEODE_CLI_HOME/config.json"
+          echo "GEODE_CLI_HOME=$GEODE_CLI_HOME" >> $GITHUB_ENV
+
       - name: Setup Geode CLI
         uses: geode-sdk/cli/.github/actions/setup@main
 
-      - name: Setup Geode SDK
+      - name: Install SDK
         run: |
           geode sdk install
           geode sdk update
 
-      - name: Install platform binaries
+      - name: Install binaries
         run: |
           geode sdk install-binaries --platform ${{ matrix.platform }}
 
-      - name: Build mod
+      - name: Build
         run: |
           mkdir build
           cd build
