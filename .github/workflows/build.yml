@@ -31,4 +31,21 @@ jobs:
       # Create non-interactive CLI profile (fixes crash)
       - name: Setup Geode profile
         run: |
-          mkdir -p
+          mkdir -p ~/.config/geode
+          echo '{"currentProfile":"default","profiles":{"default":{"name":"default"}}}' > ~/.config/geode/config.json
+
+      # Install SDK
+      - name: Install SDK
+        run: geode sdk install
+
+      # Install binaries (REQUIRED for Codegen)
+      - name: Install binaries
+        run: geode sdk install-binaries --platform ${{ matrix.cli }}
+
+      # Build with CMake + CPM
+      - name: Build
+        run: |
+          mkdir build
+          cd build
+          cmake .. -G Ninja -DGEODE_TARGET_PLATFORM=${{ matrix.platform }}
+          cmake --build .
