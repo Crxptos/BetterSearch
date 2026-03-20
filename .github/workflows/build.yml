@@ -1,40 +1,31 @@
 name: Build Geode Mod
 
 on:
-push:
-pull_request:
+  push:
+  pull_request:
 
 jobs:
-build:
-runs-on: ubuntu-latest
+  build:
+    runs-on: ubuntu-latest
 
-env:
-  GEODE_CLI_HOME: ${{ github.workspace }}/geode-cli
+    env:
+      GEODE_CLI_HOME: ${{ github.workspace }}/geode-cli
 
-steps:
-  - name: Checkout
-    uses: actions/checkout@v4
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
 
-  - name: Setup Geode profile
-    run: |
-      mkdir -p "$GEODE_CLI_HOME"
-      echo '{"currentProfile":"default","profiles":{"default":{"name":"default"}}}' > "$GEODE_CLI_HOME/config.json"
+      - name: Setup Geode profile
+        run: mkdir -p "$GEODE_CLI_HOME" && echo '{"currentProfile":"default","profiles":{"default":{"name":"default"}}}' > "$GEODE_CLI_HOME/config.json"
 
-  - name: Setup Geode CLI
-    uses: geode-sdk/cli/.github/actions/setup@main
+      - name: Setup Geode CLI
+        uses: geode-sdk/cli/.github/actions/setup@main
 
-  - name: Install SDK
-    run: |
-      geode sdk install
-      geode sdk update
+      - name: Install SDK
+        run: geode sdk install && geode sdk update
 
-  - name: Install binaries
-    run: |
-      geode sdk install-binaries --platform android64
+      - name: Install binaries
+        run: geode sdk install-binaries --platform android64
 
-  - name: Build
-    run: |
-      mkdir build
-      cd build
-      cmake .. -G Ninja
-      cmake --build .
+      - name: Build
+        run: mkdir build && cd build && cmake .. -G Ninja && cmake --build .
