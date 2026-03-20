@@ -16,6 +16,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # Install Geode CLI and SDK
+      - name: Setup Geode CLI
+        uses: geode-sdk/cli/.github/actions/setup@main
+
+      # Build mod
       - name: Build Mod
         uses: geode-sdk/build-geode-mod@main
         with:
