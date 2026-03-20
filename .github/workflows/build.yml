@@ -8,24 +8,19 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
-    env:
-      CLI_PROFILE: ${{ github.workspace }}/cli-profile
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # ✅ Install CLI FIRST
       - name: Setup Geode CLI
         uses: geode-sdk/cli/.github/actions/setup@main
 
-      # ✅ THEN create profile (after CLI exists)
-      - name: Setup Geode profile
+      # ✅ FORCE create profile (non-interactive workaround)
+      - name: Create Geode profile
         run: |
-          mkdir -p "$CLI_PROFILE"
-          echo '{"currentProfile":"default","profiles":{"default":{"name":"default"}}}' > "$CLI_PROFILE/config.json"
+          mkdir -p ~/.geode
+          echo '{"currentProfile":"default","profiles":{"default":{"name":"default"}}}' > ~/.geode/config.json
 
-      # ✅ Now CLI can see the profile
       - name: Install SDK
         run: |
           geode sdk install
