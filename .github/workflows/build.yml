@@ -1,44 +1,59 @@
 name: Build Geode Mod
 
 on:
-  push:
-  pull_request:
+push:
+pull_request:
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
+build:
+runs-on: ubuntu-latest
 
-    strategy:
-      fail-fast: false
-      matrix:
-        platform: [android64] # start simple
+env:
+  GEODE_CLI_HOME: ${{ github.workspace }}/geode-cli
 
-    steps:
-      - uses: actions/checkout@v4
+strategy:
+  fail-fast: false
+  matrix:
+    platform: [android64, win64]
 
-      # ✅ Fix: create CLI profile
-      - name: Setup Geode profile
-        run: |
-          export GEODE_CLI_HOME="$GITHUB_WORKSPACE/geode-cli"
-          mkdir -p "$GEODE_CLI_HOME"
-          echo "{}" > "$GEODE_CLI_HOME/config.json"
-          echo "GEODE_CLI_HOME=$GEODE_CLI_HOME" >> $GITHUB_ENV
+steps:
+  - name: Checkout repository
+    uses: actions/checkout@v4
 
-      - name: Setup Geode CLI
-        uses: geode-sdk/cli/.github/actions/setup@main
+  # ✅ Create NON-INTERACTIVE Geode profile (fixes your error)
+  - name: Setup Geode profile
+    run: |
+      mkdir -p "$GEODE_CLI_HOME"
+      cat > "$GEODE_CLI_HOME/config.json" <<EOF
+      {
+        "currentProfile": "default",
+        "profiles": {
+          "default": {
+            "name": "default"
+          }
+        }
+      }
+      EOF
 
-      - name: Install SDK
-        run: |
-          geode sdk install
-          geode sdk update
+  # ✅ Install Geode CLI
+  - name: Setup Geode CLI
+    uses: geode-sdk/cli/.github/actions/setup@main
 
-      - name: Install binaries
-        run: |
-          geode sdk install-binaries --platform ${{ matrix.platform }}
+  # ✅ Install SDK
+  - name: Install Geode SDK
+    run: |
+      geode sdk install
+      geode sdk update
 
-      - name: Build
-        run: |
-          mkdir build
-          cd build
-          cmake .. -G Ninja
-          cmake --build .
+  # ✅ Install correct binaries PER platform (CRITICAL FIX)
+  - name: Install platform binaries
+    run: |
+      geode sdk install-binaries --platform ${{ matrix.platform }}
+
+  # ✅ Build
+  - name: Build mod
+    run: |
+      mkdir build
+      cd build
+      cmake .. -G Ninja
+      cmake --build .
