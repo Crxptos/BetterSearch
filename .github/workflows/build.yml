@@ -1,4 +1,5 @@
 name: Build Geode Mod
+
 on:
 push:
 pull_request:
@@ -11,21 +12,23 @@ env:
   GEODE_CLI_HOME: ${{ github.workspace }}/geode-cli
 
 steps:
-  - uses: actions/checkout@v4
+  - name: Checkout
+    uses: actions/checkout@v4
 
   - name: Setup Geode profile
     run: |
       mkdir -p "$GEODE_CLI_HOME"
       cat > "$GEODE_CLI_HOME/config.json" <<EOF
-      {
-        "currentProfile": "default",
-        "profiles": {
-          "default": {
-            "name": "default"
-          }
-        }
-      }
-      EOF
+
+{
+"currentProfile": "default",
+"profiles": {
+"default": {
+"name": "default"
+}
+}
+}
+EOF
 
   - name: Setup Geode CLI
     uses: geode-sdk/cli/.github/actions/setup@main
