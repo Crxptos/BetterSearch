@@ -36,8 +36,7 @@ jobs:
           geode sdk update
 
       - name: Install Android64 binaries
-        run: |
-          geode sdk install-binaries --platform android64
+        run: geode sdk install-binaries --platform android64
 
       - name: Build
         run: |
