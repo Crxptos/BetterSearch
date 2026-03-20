@@ -16,8 +16,22 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Build Mod
+      # Install CLI
+      - name: Setup Geode CLI
+        uses: geode-sdk/cli/.github/actions/setup@main
+
+      # Install SDK (this works fine)
+      - name: Install SDK
+        run: geode sdk install
+
+      # ✅ FIX: manually install binaries WITH platform
+      - name: Install Binaries
+        run: geode sdk install-binaries --platform ${{ matrix.target }}
+
+      # ✅ Build WITHOUT letting action reinstall binaries
+      - name: Build
         uses: geode-sdk/build-geode-mod@main
         with:
           target: ${{ matrix.target }}
-          sdk: latest
+          # This prevents it from reinstalling / breaking
+          use-cpm-cache: true
