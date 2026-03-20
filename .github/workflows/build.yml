@@ -8,6 +8,11 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: [Android64, Win64]
+
     steps:
       - uses: actions/checkout@v4
 
@@ -18,5 +23,5 @@ jobs:
         run: |
           mkdir build
           cd build
-          cmake .. -G Ninja
+          cmake .. -G Ninja -DGEODE_TARGET_PLATFORM=${{ matrix.platform }}
           cmake --build .
