@@ -8,40 +8,12 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
-    strategy:
-      fail-fast: false
-      matrix:
-        platform: [android64, win64]
-
     steps:
       - uses: actions/checkout@v4
 
-      # Install Geode CLI
-      - name: Setup Geode CLI
-        uses: geode-sdk/cli/.github/actions/setup@main
+      - name: Install dependencies
+        run: sudo apt-get update && sudo apt-get install -y ninja-build
 
-      # Create profile (FIXES "No profiles found")
-      - name: Create Geode profile
-        run: |
-          mkdir -p ~/.geode
-          echo '{
-            "currentProfile": "default",
-            "profiles": {
-              "default": {
-                "name": "default"
-              }
-            }
-          }' > ~/.geode/config.json
-
-      # Install SDK
-      - name: Install SDK
-        run: geode sdk install
-
-      # Install binaries (FIXES platform error)
-      - name: Install Binaries
-        run: geode sdk install-binaries --platform ${{ matrix.platform }}
-
-      # Build manually with CMake
       - name: Build
         run: |
           mkdir build
