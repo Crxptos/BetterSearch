@@ -16,30 +16,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # Install deps
-      - name: Install dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y ninja-build
-
-      # 🧠 Fix memory issues
-      - name: Add swap
-        run: |
-          sudo fallocate -l 2G /swapfile || true
-          sudo chmod 600 /swapfile || true
-          sudo mkswap /swapfile || true
-          sudo swapon /swapfile || true
-
-      # 🚀 Official Geode builder (handles SDK + binaries automatically)
       - name: Build mod
         uses: geode-sdk/build-geode-mod@main
         with:
           target: ${{ matrix.target }}
           use-cpm-cache: true
 
-      # 📦 Upload output
       - name: Upload .geode
         uses: actions/upload-artifact@v4
         with:
-          name: BetterSearch-${{ matrix.target }}
+          name: geode-${{ matrix.target }}
           path: "**/*.geode"
