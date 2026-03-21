@@ -10,36 +10,49 @@ jobs:
 
     strategy:
       matrix:
-        target: [Android64, Win64]
+        target: [Android64]
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # Install dependencies
+      # Install minimal deps
       - name: Install dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y ninja-build
 
-      # Increase memory (prevents random cancel)
-      - name: Increase swap
+      # Setup Geode CLI
+      - name: Setup Geode CLI
+        uses: geode-sdk/cli/.github/actions/setup@main
+
+      # Create profile (FIXES profile errors)
+      - name: Setup Geode profile
         run: |
-          sudo fallocate -l 2G /myswap || true
-          sudo chmod 600 /myswap
-          sudo mkswap /myswap || true
-          sudo swapon /myswap || true
+          mkdir -p "$HOME/.geode"
+          printf "GithubActions\nandroid64\n$HOME\n$HOME\n\n" | geode config setup
 
-      # 🚀 Build (NO CACHE = FIXES YOUR ERROR)
-      - name: Build mod
-        uses: geode-sdk/build-geode-mod@main
-        with:
-          target: ${{ matrix.target }}
-          use-cpm-cache: false
+      # Install SDK + binaries (FIXES loader error)
+      - name: Install SDK + binaries
+        run: |
+          geode sdk install "$GITHUB_WORKSPACE/geode-sdk"
+          geode sdk install-binaries --platform android64
 
-      # Upload result
+      # Export SDK path
+      - name: Set GEODE_SDK
+        run: echo "GEODE_SDK=$GITHUB_WORKSPACE/geode-sdk" >> $GITHUB_ENV
+
+      # Build (manual = faster & more stable than action)
+      - name: Build
+        run: |
+          mkdir build
+          cd build
+          cmake .. -G Ninja -DGEODE_TARGET_PLATFORM=Android64 -DCMAKE_BUILD_TYPE=Release
+          cmake --build . -j2
+
+      # Upload .geode file
       - name: Upload .geode
         uses: actions/upload-artifact@v4
         with:
-          name: geode-${{ matrix.target }}
+          name: BetterSearch-Android64
           path: "**/*.geode"
