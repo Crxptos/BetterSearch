@@ -9,6 +9,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # -----------------------------
+      # Checkout repo
+      # -----------------------------
       - name: Checkout
         uses: actions/checkout@v4
 
@@ -21,7 +24,7 @@ jobs:
           sudo apt install -y cmake ninja-build git unzip curl
 
       # -----------------------------
-      # Download Geode CLI (FIXED)
+      # Setup Geode CLI (FIXED DOWNLOAD)
       # -----------------------------
       - name: Setup Geode CLI
         run: |
@@ -34,11 +37,12 @@ jobs:
           echo "$PWD/geode-cli" >> $GITHUB_PATH
 
       # -----------------------------
-      # Setup Geode profile (IMPORTANT)
+      # FIX: Create config manually (NO interactive crash)
       # -----------------------------
-      - name: Setup Geode Profile
+      - name: Setup Geode Config
         run: |
-          geode config setup
+          mkdir -p ~/.config/geode
+          echo '{}' > ~/.config/geode/config.json
 
       # -----------------------------
       # Install SDK + binaries
@@ -66,9 +70,9 @@ jobs:
           cmake --build . -j2
 
       # -----------------------------
-      # Upload artifact (.geode file)
+      # Upload built mod
       # -----------------------------
-      - name: Upload build
+      - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
           name: BetterSearch
