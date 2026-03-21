@@ -27,11 +27,11 @@ jobs:
       - name: Install dependencies
         run: sudo apt-get update && sudo apt-get install -y ninja-build
 
-      # Setup Geode CLI
+      # Install Geode CLI
       - name: Setup Geode CLI
         uses: geode-sdk/cli/.github/actions/setup@main
 
-      # ✅ STABLE profile (NO interactive crash)
+      # 🔥 FIXED: Create VALID CLI profile + config
       - name: Setup Geode profile
         run: |
           mkdir -p "$GEODE_CLI_HOME/profiles"
@@ -45,6 +45,12 @@ jobs:
           }
           EOF
 
+          cat > "$GEODE_CLI_HOME/config.json" <<EOF
+          {
+            "current_profile": "default"
+          }
+          EOF
+
       # Install SDK
       - name: Install SDK
         run: geode sdk install "$GITHUB_WORKSPACE/geode-sdk"
@@ -53,11 +59,11 @@ jobs:
       - name: Set GEODE_SDK
         run: echo "GEODE_SDK=$GITHUB_WORKSPACE/geode-sdk" >> $GITHUB_ENV
 
-      # Install binaries (CRITICAL)
+      # Install platform binaries (CRITICAL FIX)
       - name: Install binaries
         run: geode sdk install-binaries --platform ${{ matrix.cli }}
 
-      # Build
+      # Build mod
       - name: Build
         uses: geode-sdk/build-geode-mod@main
         with:
@@ -65,9 +71,11 @@ jobs:
           install-binaries: false
           use-cpm-cache: true
 
-      # ✅ Upload .geode file
+      # 📦 Upload .geode files (THIS is what you want!)
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           name: BetterSearch-${{ matrix.target }}
-          path: output/*.geode
+          path: |
+            build/**/*.geode
+            output/**/*.geode
