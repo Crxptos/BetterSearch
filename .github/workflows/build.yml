@@ -11,7 +11,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        target: [android64, win64]
+        include:
+          - platform: Android64
+            cli: android64
+          - platform: Win64
+            cli: win64
 
     steps:
       - uses: actions/checkout@v4
@@ -24,11 +28,13 @@ jobs:
       - name: Setup Geode CLI
         uses: geode-sdk/cli/.github/actions/setup@main
 
-      # Create CLI profile NON-INTERACTIVELY (FIXES your main error)
+      # ✅ FIX: Create working CLI profile (non-interactive)
       - name: Setup Geode profile
         run: |
-          mkdir -p "$HOME/.config/geode"
-          cat > "$HOME/.config/geode/config.json" <<EOF
+          export GEODE_CLI_HOME="$GITHUB_WORKSPACE/geode-cli"
+          mkdir -p "$GEODE_CLI_HOME"
+
+          cat > "$GEODE_CLI_HOME/config.json" <<EOF
           {
             "currentProfile": "default",
             "profiles": {
@@ -39,21 +45,19 @@ jobs:
           }
           EOF
 
+          echo "GEODE_CLI_HOME=$GEODE_CLI_HOME" >> $GITHUB_ENV
+
       # Install SDK
       - name: Install SDK
         run: geode sdk install
 
-      # ✅ FIX: Export correct SDK path
-      - name: Fix GEODE_SDK path
-        run: echo "GEODE_SDK=$(geode config get sdkPath)" >> $GITHUB_ENV
-
-      # Install platform-specific binaries
+      # Install platform binaries (CRITICAL FIX)
       - name: Install Binaries
-        run: geode sdk install-binaries --platform ${{ matrix.target }}
+        run: geode sdk install-binaries --platform ${{ matrix.cli }}
 
       # Build mod
       - name: Build
         uses: geode-sdk/build-geode-mod@main
         with:
-          target: ${{ matrix.target }}
+          target: ${{ matrix.platform }}
           use-cpm-cache: true
