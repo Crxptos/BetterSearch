@@ -9,37 +9,51 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repo
+      - name: Checkout
         uses: actions/checkout@v4
 
+      # -----------------------------
       # Install dependencies
+      # -----------------------------
       - name: Install dependencies
         run: |
           sudo apt update
-          sudo apt install -y ninja-build cmake git unzip
+          sudo apt install -y cmake ninja-build git unzip curl
 
-      # Setup Geode CLI
+      # -----------------------------
+      # Download Geode CLI (FIXED)
+      # -----------------------------
       - name: Setup Geode CLI
         run: |
-          mkdir -p my-epic-geode-cli
-          curl -L https://github.com/geode-sdk/cli/releases/latest/download/geode-cli-linux.zip -o geode.zip
-          unzip geode.zip -d my-epic-geode-cli
-          chmod +x my-epic-geode-cli/geode
-          echo "$PWD/my-epic-geode-cli" >> $GITHUB_PATH
+          mkdir -p geode-cli
 
-      # Setup Geode (THIS FIXES YOUR ERROR)
-      - name: Setup Geode SDK
+          curl -L https://github.com/geode-sdk/cli/releases/download/v3.7.4/geode-cli-v3.7.4-linux.zip -o geode.zip
+          unzip geode.zip -d geode-cli
+
+          chmod +x geode-cli/geode
+          echo "$PWD/geode-cli" >> $GITHUB_PATH
+
+      # -----------------------------
+      # Setup Geode profile (IMPORTANT)
+      # -----------------------------
+      - name: Setup Geode Profile
         run: |
-          export CLI_PROFILE="$GITHUB_WORKSPACE/cli-profile"
-          geode config setup
+          geode config setup --silent
 
+      # -----------------------------
+      # Install SDK + binaries
+      # -----------------------------
+      - name: Install Geode SDK
+        run: |
           geode sdk install geode-sdk
           geode sdk install-binaries
 
           echo "GEODE_SDK=$GITHUB_WORKSPACE/geode-sdk" >> $GITHUB_ENV
 
-      # Build
-      - name: Build mod
+      # -----------------------------
+      # Build mod
+      # -----------------------------
+      - name: Build
         run: |
           mkdir build
           cd build
@@ -51,9 +65,11 @@ jobs:
 
           cmake --build . -j2
 
-      # Upload artifacts
+      # -----------------------------
+      # Upload artifact (.geode file)
+      # -----------------------------
       - name: Upload build
         uses: actions/upload-artifact@v4
         with:
           name: BetterSearch
-          path: build/**/*.geode
+          path: build/*.geode
