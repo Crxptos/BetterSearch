@@ -11,17 +11,21 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        target: [Android64, Win64]
+        target: [android64, win64]
 
     steps:
       - uses: actions/checkout@v4
 
-      # Fix CLI overwrite bug
-      - name: Clean CLI
-        run: rm -rf my-epic-geode-cli
+      # Install dependencies
+      - name: Install dependencies
+        run: sudo apt-get update && sudo apt-get install -y ninja-build p7zip-full
 
-      # 🔥 REQUIRED: create CLI profile
-      - name: Setup Geode Profile
+      # Setup Geode CLI
+      - name: Setup Geode CLI
+        uses: geode-sdk/cli/.github/actions/setup@main
+
+      # Create CLI profile NON-INTERACTIVELY (FIXES your main error)
+      - name: Setup Geode profile
         run: |
           mkdir -p "$HOME/.config/geode"
           cat > "$HOME/.config/geode/config.json" <<EOF
@@ -35,8 +39,20 @@ jobs:
           }
           EOF
 
-      # Build
-      - name: Build Mod
+      # Install SDK
+      - name: Install SDK
+        run: geode sdk install
+
+      # ✅ FIX: Export correct SDK path
+      - name: Fix GEODE_SDK path
+        run: echo "GEODE_SDK=$(geode config get sdkPath)" >> $GITHUB_ENV
+
+      # Install platform-specific binaries
+      - name: Install Binaries
+        run: geode sdk install-binaries --platform ${{ matrix.target }}
+
+      # Build mod
+      - name: Build
         uses: geode-sdk/build-geode-mod@main
         with:
           target: ${{ matrix.target }}
