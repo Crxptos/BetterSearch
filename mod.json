@@ -4,11 +4,10 @@
   "id": "crxptos.bettersearch",
   "name": "BetterSearch",
   "developer": "Crxptos",
-  "description": "Better level & song search using improved filtering and UI",
-  "entry": "BetterSearchMain",
+  "description": "Improves level and song searching with fuzzy matching and Google-style results",
   "resources": {
-    "files": [
-      "resources/BetterSearchButton.png"
+    "sprites": [
+      "BetterSearchButton.png"
     ]
   }
 }
