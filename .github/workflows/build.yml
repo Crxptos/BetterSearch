@@ -25,12 +25,12 @@ jobs:
           mkdir -p "$HOME/.geode"
           printf "GithubActions\nandroid64\n$HOME\n$HOME\n\n" | geode config setup
 
-      # 🔥 FIXED STEP (install + export together)
+      # 🔥 Install SDK + FORCE PATH
       - name: Install SDK + binaries
         run: |
           geode sdk install "$GITHUB_WORKSPACE/geode-sdk"
+          geode sdk set-path "$GITHUB_WORKSPACE/geode-sdk"
           geode sdk install-binaries --platform android64
-          echo "GEODE_SDK=$GITHUB_WORKSPACE/geode-sdk" >> $GITHUB_ENV
 
       - name: Build
         run: |
