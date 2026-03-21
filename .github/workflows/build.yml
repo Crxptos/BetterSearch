@@ -16,32 +16,32 @@ jobs:
           - target: Win64
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
       # Install dependencies
       - name: Install dependencies
         run: sudo apt-get update && sudo apt-get install -y ninja-build
 
-      # Install Geode CLI
+      # Install Geode CLI (ONLY method used)
       - name: Setup Geode CLI
         uses: geode-sdk/cli/.github/actions/setup@main
 
-      # ✅ Install SDK manually (NO CLI PROFILE)
+      # Install Geode SDK manually (no profile needed)
       - name: Install SDK
         run: |
           git clone --depth 1 --branch v5.3.0 https://github.com/geode-sdk/geode.git geode-sdk
           echo "GEODE_SDK=$GITHUB_WORKSPACE/geode-sdk" >> $GITHUB_ENV
 
-      # ✅ Build (THIS installs binaries automatically)
+      # Build mod
       - name: Build
         uses: geode-sdk/build-geode-mod@main
         with:
           target: ${{ matrix.target }}
-          install-binaries: true   # 🔥 IMPORTANT
           use-cpm-cache: true
 
-      # ✅ Upload output
-      - name: Upload artifact
+      # Upload .geode file as artifact
+      - name: Upload .geode artifact
         uses: actions/upload-artifact@v4
         with:
           name: geode-${{ matrix.target }}
