@@ -3,13 +3,26 @@ project(BetterSearch)
 
 set(CMAKE_CXX_STANDARD 17)
 
-# ✅ This is REQUIRED for Geode
-include($ENV{GEODE_SDK}/cmake/Geode.cmake)
+# 🚫 DO NOT USE find_package(Geode)
 
-# ✅ Your mod
-geode_add_mod(BetterSearch
+# ✅ Use CPM (Geode handles this automatically)
+include(cmake/CPM.cmake)
+
+CPMAddPackage(
+    NAME geode
+    GITHUB_REPOSITORY geode-sdk/geode
+    VERSION 5.3.0
+)
+
+# Your mod
+add_library(${PROJECT_NAME} SHARED
     src/BetterSearchMain.cpp
-    src/BetterSearchLevels.cpp
     src/BetterSearchSong.cpp
+    src/BetterSearchLevels.cpp
     src/FuzzyText.cpp
 )
+
+target_link_libraries(${PROJECT_NAME} geode-sdk)
+
+# Optional but good
+target_compile_definitions(${PROJECT_NAME} PRIVATE GEODE_IS_MOD=1)
