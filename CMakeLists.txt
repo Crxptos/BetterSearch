@@ -1,15 +1,7 @@
 cmake_minimum_required(VERSION 3.21)
 project(BetterSearch)
 
-include(cmake/CPM.cmake)
-
-CPMAddPackage(
-    NAME geode
-    GITHUB_REPOSITORY geode-sdk/geode
-    GIT_TAG v5.3.0
-)
-
-include(${geode_SOURCE_DIR}/cmake/Geode.cmake)
+include($ENV{GEODE_SDK}/cmake/Geode.cmake)
 
 geode_add_mod(BetterSearch
     src/BetterSearchMain.cpp
