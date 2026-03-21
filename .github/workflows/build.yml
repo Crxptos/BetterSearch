@@ -8,41 +8,30 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
-    strategy:
-      matrix:
-        target: [Android64]
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # Install minimal deps
       - name: Install dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y ninja-build
 
-      # Setup Geode CLI
       - name: Setup Geode CLI
         uses: geode-sdk/cli/.github/actions/setup@main
 
-      # Create profile (FIXES profile errors)
       - name: Setup Geode profile
         run: |
           mkdir -p "$HOME/.geode"
           printf "GithubActions\nandroid64\n$HOME\n$HOME\n\n" | geode config setup
 
-      # Install SDK + binaries (FIXES loader error)
+      # 🔥 FIXED STEP (install + export together)
       - name: Install SDK + binaries
         run: |
           geode sdk install "$GITHUB_WORKSPACE/geode-sdk"
           geode sdk install-binaries --platform android64
+          echo "GEODE_SDK=$GITHUB_WORKSPACE/geode-sdk" >> $GITHUB_ENV
 
-      # Export SDK path
-      - name: Set GEODE_SDK
-        run: echo "GEODE_SDK=$GITHUB_WORKSPACE/geode-sdk" >> $GITHUB_ENV
-
-      # Build (manual = faster & more stable than action)
       - name: Build
         run: |
           mkdir build
@@ -50,7 +39,6 @@ jobs:
           cmake .. -G Ninja -DGEODE_TARGET_PLATFORM=Android64 -DCMAKE_BUILD_TYPE=Release
           cmake --build . -j2
 
-      # Upload .geode file
       - name: Upload .geode
         uses: actions/upload-artifact@v4
         with:
