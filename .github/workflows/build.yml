@@ -8,6 +8,9 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    env:
+      GEODE_CLI_HOME: ${{ github.workspace }}/geode-cli
+
     strategy:
       fail-fast: false
       matrix:
@@ -28,20 +31,17 @@ jobs:
       - name: Setup Geode CLI
         uses: geode-sdk/cli/.github/actions/setup@main
 
-      # ✅ FINAL FIX: manual profile (NO interactive setup)
+      # ✅ Create profile manually (NO interactive CLI)
       - name: Setup Geode profile
         run: |
-          export GEODE_CLI_HOME="$GITHUB_WORKSPACE/geode-cli"
           mkdir -p "$GEODE_CLI_HOME/profiles"
 
-          # Create config
           cat > "$GEODE_CLI_HOME/config.json" <<EOF
           {
             "currentProfile": "GithubActions"
           }
           EOF
 
-          # Create profile
           cat > "$GEODE_CLI_HOME/profiles/GithubActions.json" <<EOF
           {
             "name": "GithubActions",
@@ -49,13 +49,11 @@ jobs:
           }
           EOF
 
-          echo "GEODE_CLI_HOME=$GEODE_CLI_HOME" >> $GITHUB_ENV
-
       # Install SDK
       - name: Install SDK
         run: geode sdk install
 
-      # Install binaries (IMPORTANT)
+      # Install binaries for each platform
       - name: Install binaries
         run: geode sdk install-binaries --platform ${{ matrix.cli }}
 
