@@ -20,41 +20,41 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # ✅ Install dependencies (Clang + Ninja + LLD)
+      # ✅ Install dependencies
       - name: Install dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y ninja-build clang lld
 
-      # ✅ Add swap (prevents random "operation canceled")
+      # ✅ Add swap (SAFE VERSION - no conflicts)
       - name: Increase swap
         run: |
-          sudo fallocate -l 2G /swapfile
-          sudo chmod 600 /swapfile
-          sudo mkswap /swapfile
-          sudo swapon /swapfile
+          sudo fallocate -l 2G /myswap
+          sudo chmod 600 /myswap
+          sudo mkswap /myswap
+          sudo swapon /myswap
 
       # ✅ Setup Geode CLI
       - name: Setup Geode CLI
         uses: geode-sdk/cli/.github/actions/setup@main
 
-      # ✅ Create Geode profile (FIXED)
+      # ✅ Create Geode profile (non-interactive)
       - name: Setup Geode profile
         run: |
           mkdir -p "$GEODE_CLI_HOME"
           printf "default\nAndroid64\n$HOME\n$HOME\n\n" | geode config setup
 
-      # ✅ Install Geode SDK manually
+      # ✅ Install Geode SDK manually (NO CLI bugs)
       - name: Install Geode SDK
         run: |
           git clone --depth 1 --branch v5.3.0 https://github.com/geode-sdk/geode.git geode-sdk
           echo "GEODE_SDK=$GITHUB_WORKSPACE/geode-sdk" >> $GITHUB_ENV
 
-      # ✅ Install binaries per platform
+      # ✅ Install platform binaries
       - name: Install binaries
         run: geode sdk install-binaries --platform ${{ matrix.target }}
 
-      # ✅ Build (stable config)
+      # ✅ Build mod (stable config)
       - name: Build
         run: |
           mkdir build
@@ -66,13 +66,13 @@ jobs:
 
           cmake --build . --parallel 2
 
-      # ✅ Collect .geode files
+      # ✅ Collect output
       - name: Collect .geode
         run: |
           mkdir -p output
           find build -name "*.geode" -exec cp {} output/ \;
 
-      # ✅ Upload artifacts (THIS is what you download)
+      # ✅ Upload artifact (THIS is what you download)
       - name: Upload .geode
         uses: actions/upload-artifact@v4
         with:
