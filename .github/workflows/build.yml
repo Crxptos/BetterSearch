@@ -11,14 +11,31 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        target: [Android64, Win64]  # ✅ FIXED CASE
+        target: [Android64, Win64]
 
     steps:
       - uses: actions/checkout@v4
 
+      # Fix CLI overwrite bug
       - name: Clean CLI
         run: rm -rf my-epic-geode-cli
 
+      # 🔥 REQUIRED: create CLI profile
+      - name: Setup Geode Profile
+        run: |
+          mkdir -p "$HOME/.config/geode"
+          cat > "$HOME/.config/geode/config.json" <<EOF
+          {
+            "currentProfile": "default",
+            "profiles": {
+              "default": {
+                "name": "default"
+              }
+            }
+          }
+          EOF
+
+      # Build
       - name: Build Mod
         uses: geode-sdk/build-geode-mod@main
         with:
