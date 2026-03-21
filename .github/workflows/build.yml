@@ -9,40 +9,25 @@ jobs:
     runs-on: ubuntu-latest
 
     strategy:
-      fail-fast: false
       matrix:
-        include:
-          - target: Android64
-          - target: Win64
+        target: [Android64, Win64]
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
       - name: Install dependencies
-        run: sudo apt-get update && sudo apt-get install -y ninja-build
+        run: sudo apt-get update && sudo apt-get install -y ninja-build clang
 
-      # ✅ Install CLI ONCE
+      # Install Geode CLI
       - name: Setup Geode CLI
         uses: geode-sdk/cli/.github/actions/setup@main
 
-      # ✅ Install SDK manually
+      # Install SDK
       - name: Install Geode SDK
         run: |
           git clone --depth 1 --branch v5.3.0 https://github.com/geode-sdk/geode.git geode-sdk
           echo "GEODE_SDK=$GITHUB_WORKSPACE/geode-sdk" >> $GITHUB_ENV
 
-      # ✅ Build WITHOUT re-downloading CLI
-      - name: Build
-        uses: geode-sdk/build-geode-mod@main
-        with:
-          target: ${{ matrix.target }}
-          cli: none
-          use-cpm-cache: true
-
-      # ✅ Upload result
-      - name: Upload .geode artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: geode-${{ matrix.target }}
-          path: output/*.geode
+      # Install binaries (IMPORTANT)
+      - name:
