@@ -20,7 +20,6 @@ jobs:
       - name: Setup Geode CLI
         uses: geode-sdk/cli/.github/actions/setup@main
 
-      # 🔥 FIX: Use Android64 (NOT android64)
       - name: Setup Geode profile
         run: |
           mkdir -p "$HOME/.geode"
@@ -33,6 +32,7 @@ jobs:
           geode sdk set-path "$GEODE_SDK"
           geode sdk install-binaries --platform Android64
 
+      # 🔥 THIS IS THE REAL FIX
       - name: Build
         run: |
           export GEODE_SDK="$GITHUB_WORKSPACE/geode-sdk"
@@ -40,6 +40,7 @@ jobs:
           cd build
           cmake .. -G Ninja \
             -DGEODE_TARGET_PLATFORM=Android64 \
+            -DGEODE_USE_LOCAL_SDK=ON \
             -DGEODE_SDK="$GEODE_SDK" \
             -DCMAKE_BUILD_TYPE=Release
           cmake --build . -j2
