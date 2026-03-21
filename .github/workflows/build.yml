@@ -16,16 +16,24 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # 🚀 Official Geode builder (DO NOT add manual SDK steps)
+      # 🚀 Build using official Geode action (handles SDK + binaries)
       - name: Build mod
         uses: geode-sdk/build-geode-mod@main
         with:
           target: ${{ matrix.target }}
           use-cpm-cache: true
 
-      # 📦 Upload built mod
+      # 🔍 Debug (VERY IMPORTANT)
+      - name: Debug output
+        run: |
+          echo "Searching for .geode files..."
+          find . -name "*.geode"
+
+      # 📦 Upload artifact
       - name: Upload .geode
         uses: actions/upload-artifact@v4
         with:
-          name: BetterSearch-${{ matrix.target }}
-          path: "**/*.geode"
+          name: geode-${{ matrix.target }}
+          path: |
+            build/**/*.geode
+            **/*.geode
