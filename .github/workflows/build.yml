@@ -8,64 +8,58 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    env:
+      GEODE_CLI_HOME: ${{ github.workspace }}/geode-cli
+
     strategy:
       fail-fast: false
       matrix:
         include:
-          - platform: Android64
+          - target: Android64
             cli: android64
-          - platform: Win64
+          - target: Win64
             cli: win64
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      # Install dependencies
+      # Install required tools
       - name: Install dependencies
-        run: sudo apt-get update && sudo apt-get install -y ninja-build p7zip-full
+        run: sudo apt-get update && sudo apt-get install -y ninja-build
 
-      # Setup Geode CLI (SAFE — no conflicts)
+      # ✅ Install Geode CLI (ONLY THIS, no manual download!)
       - name: Setup Geode CLI
         uses: geode-sdk/cli/.github/actions/setup@main
 
-      # Create CLI profile NON-INTERACTIVELY (REAL FIX)
+      # ✅ Create CLI profile (non-interactive, no crash)
       - name: Setup Geode profile
         run: |
-          export GEODE_CLI_HOME="$GITHUB_WORKSPACE/geode-cli"
           mkdir -p "$GEODE_CLI_HOME"
+          printf "GithubActions\nandroid64\n$HOME\n$HOME\n\n" | geode config setup
 
-          # Manually create profile file (avoids broken interactive setup)
-          mkdir -p "$GEODE_CLI_HOME/profiles"
-          cat > "$GEODE_CLI_HOME/profiles/default.json" <<EOF
-          {
-            "name": "default",
-            "platform": "${{ matrix.cli }}",
-            "gd_path": "/tmp",
-            "sdk_path": "$GITHUB_WORKSPACE/geode-sdk"
-          }
-          EOF
-
-          echo "GEODE_CLI_HOME=$GEODE_CLI_HOME" >> $GITHUB_ENV
-
-      # Install SDK (NOW WORKS because profile exists)
+      # ✅ Install SDK to known location
       - name: Install SDK
         run: geode sdk install "$GITHUB_WORKSPACE/geode-sdk"
 
-      # Install binaries (CRITICAL FIX)
+      # ✅ Export SDK path
+      - name: Set GEODE_SDK
+        run: echo "GEODE_SDK=$GITHUB_WORKSPACE/geode-sdk" >> $GITHUB_ENV
+
+      # ✅ Install binaries per platform (FIXES your main error)
       - name: Install binaries
         run: geode sdk install-binaries --platform ${{ matrix.cli }}
 
-      # Build mod
+      # ✅ Build (no duplicate installs, no conflicts)
       - name: Build
         uses: geode-sdk/build-geode-mod@main
         with:
-          target: ${{ matrix.platform }}
+          target: ${{ matrix.target }}
+          install-binaries: false
           use-cpm-cache: true
-
-      # ✅ Upload .geode files
+      
+      # ✅️ Upload artifacts (.geode file)
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: geode-${{ matrix.platform }}
+          name: geode-build-${{ matrix.platform }}
           path: output/*.geode
