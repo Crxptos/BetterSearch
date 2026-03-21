@@ -25,7 +25,7 @@ jobs:
           mkdir -p "$HOME/.geode"
           printf "GithubActions\nandroid64\n$HOME\n$HOME\n\n" | geode config setup
 
-      # 🔥 EVERYTHING IN ONE STEP (CRITICAL)
+      # 🔥 Install SDK + binaries (force path)
       - name: Install SDK + binaries
         run: |
           export GEODE_SDK="$GITHUB_WORKSPACE/geode-sdk"
@@ -33,13 +33,16 @@ jobs:
           geode sdk set-path "$GEODE_SDK"
           geode sdk install-binaries --platform android64
 
-      # 🔥 Build MUST also have export
+      # 🔥 BUILD WITH SDK PATH (THIS FIXES YOUR ERROR)
       - name: Build
         run: |
           export GEODE_SDK="$GITHUB_WORKSPACE/geode-sdk"
           mkdir build
           cd build
-          cmake .. -G Ninja -DGEODE_TARGET_PLATFORM=Android64 -DCMAKE_BUILD_TYPE=Release
+          cmake .. -G Ninja \
+            -DGEODE_TARGET_PLATFORM=Android64 \
+            -DGEODE_SDK="$GEODE_SDK" \
+            -DCMAKE_BUILD_TYPE=Release
           cmake --build . -j2
 
       - name: Upload .geode
