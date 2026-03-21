@@ -1,12 +1,13 @@
 {
+  "geode": "5.3.0",
+  "version": "1.0.0",
   "id": "crxptos.bettersearch",
   "name": "BetterSearch",
   "developer": "Crxptos",
-  "version": "1.0.0",
-  "geode": "5.3.0",
-  "description": "Improved level & song search using fuzzy matching",
+  "description": "Better level & song search using improved filtering and UI",
+  "entry": "BetterSearchMain",
   "resources": {
-    "sprites": [
+    "files": [
       "resources/BetterSearchButton.png"
     ]
   }
