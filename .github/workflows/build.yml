@@ -11,53 +11,19 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - platform: Android64
-            cli: android64
-          - platform: Win64
-            cli: win64
+        target: [android64, win64]
 
     steps:
       - uses: actions/checkout@v4
 
-      # Install dependencies
-      - name: Install dependencies
-        run: sudo apt-get update && sudo apt-get install -y ninja-build p7zip-full
-
-      # Setup Geode CLI
-      - name: Setup Geode CLI
-        uses: geode-sdk/cli/.github/actions/setup@main
-
-      # ✅ FIX: Create working CLI profile (non-interactive)
-      - name: Setup Geode profile
-        run: |
-          export GEODE_CLI_HOME="$GITHUB_WORKSPACE/geode-cli"
-          mkdir -p "$GEODE_CLI_HOME"
-
-          cat > "$GEODE_CLI_HOME/config.json" <<EOF
-          {
-            "currentProfile": "default",
-            "profiles": {
-              "default": {
-                "name": "default"
-              }
-            }
-          }
-          EOF
-
-          echo "GEODE_CLI_HOME=$GEODE_CLI_HOME" >> $GITHUB_ENV
-
-      # Install SDK
-      - name: Install SDK
-        run: geode sdk install
-
-      # Install platform binaries (CRITICAL FIX)
-      - name: Install Binaries
-        run: geode sdk install-binaries --platform ${{ matrix.cli }}
-
-      # Build mod
-      - name: Build
+      # ✅ This action handles:
+      # - CLI install
+      # - Profile setup
+      # - SDK install
+      # - Binaries install
+      # - Build
+      - name: Build Mod
         uses: geode-sdk/build-geode-mod@main
         with:
-          target: ${{ matrix.platform }}
+          target: ${{ matrix.target }}
           use-cpm-cache: true
