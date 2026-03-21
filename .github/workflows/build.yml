@@ -8,39 +8,64 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
-    env:
-      GEODE_CLI_HOME: ${{ github.workspace }}/geode-cli
-
     strategy:
       fail-fast: false
       matrix:
         include:
-          - target: Android64
+          - platform: Android64
             cli: android64
-          - target: Win64
+          - platform: Win64
             cli: win64
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      # Install required tools
+      # Install dependencies
       - name: Install dependencies
-        run: sudo apt-get update && sudo apt-get install -y ninja-build
+        run: sudo apt-get update && sudo apt-get install -y ninja-build p7zip-full
 
-      # ✅ Install Geode CLI (ONLY THIS, no manual download!)
+      # Setup Geode CLI (SAFE — no conflicts)
       - name: Setup Geode CLI
         uses: geode-sdk/cli/.github/actions/setup@main
 
-      # ✅ Create CLI profile (non-interactive, no crash)
+      # Create CLI profile NON-INTERACTIVELY (REAL FIX)
       - name: Setup Geode profile
         run: |
+          export GEODE_CLI_HOME="$GITHUB_WORKSPACE/geode-cli"
           mkdir -p "$GEODE_CLI_HOME"
-          printf "GithubActions\nandroid64\n$HOME\n$HOME\n\n" | geode config setup
 
-      # ✅ Install SDK to known location
+          # Manually create profile file (avoids broken interactive setup)
+          mkdir -p "$GEODE_CLI_HOME/profiles"
+          cat > "$GEODE_CLI_HOME/profiles/default.json" <<EOF
+          {
+            "name": "default",
+            "platform": "${{ matrix.cli }}",
+            "gd_path": "/tmp",
+            "sdk_path": "$GITHUB_WORKSPACE/geode-sdk"
+          }
+          EOF
+
+          echo "GEODE_CLI_HOME=$GEODE_CLI_HOME" >> $GITHUB_ENV
+
+      # Install SDK (NOW WORKS because profile exists)
       - name: Install SDK
         run: geode sdk install "$GITHUB_WORKSPACE/geode-sdk"
 
-      # ✅ Export SDK path
-      - name: Set GEODE_SDK
-        run: echo "GEODE_SDK=$GITHUB_WORKSPACE/geode-sdk" >> $
+      # Install binaries (CRITICAL FIX)
+      - name: Install binaries
+        run: geode sdk install-binaries --platform ${{ matrix.cli }}
+
+      # Build mod
+      - name: Build
+        uses: geode-sdk/build-geode-mod@main
+        with:
+          target: ${{ matrix.platform }}
+          use-cpm-cache: true
+
+      # ✅ Upload .geode files
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: geode-${{ matrix.platform }}
+          path: output/*.geode
