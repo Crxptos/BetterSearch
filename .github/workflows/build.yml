@@ -8,33 +8,52 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
-    strategy:
-      matrix:
-        target: [Android64]
-
     steps:
-      - name: Checkout
+      - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Install Ninja
-        run: sudo apt-get update && sudo apt-get install -y ninja-build
-
-      - name: Setup Geode CLI
-        uses: geode-sdk/cli/.github/actions/setup@main
-
-      - name: Install SDK
+      # Install dependencies
+      - name: Install dependencies
         run: |
+          sudo apt update
+          sudo apt install -y ninja-build cmake git unzip
+
+      # Setup Geode CLI
+      - name: Setup Geode CLI
+        run: |
+          mkdir -p my-epic-geode-cli
+          curl -L https://github.com/geode-sdk/cli/releases/latest/download/geode-cli-linux.zip -o geode.zip
+          unzip geode.zip -d my-epic-geode-cli
+          chmod +x my-epic-geode-cli/geode
+          echo "$PWD/my-epic-geode-cli" >> $GITHUB_PATH
+
+      # Setup Geode (THIS FIXES YOUR ERROR)
+      - name: Setup Geode SDK
+        run: |
+          export CLI_PROFILE="$GITHUB_WORKSPACE/cli-profile"
+          geode config setup
+
           geode sdk install geode-sdk
+          geode sdk install-binaries
+
           echo "GEODE_SDK=$GITHUB_WORKSPACE/geode-sdk" >> $GITHUB_ENV
 
-      - name: Install Binaries
-        run: geode sdk install-binaries
+      # Build
+      - name: Build mod
+        run: |
+          mkdir build
+          cd build
 
-      - name: Build
-        run: geode build -p Android64
+          cmake .. -G Ninja \
+            -DGEODE_TARGET_PLATFORM=Android64 \
+            -DGEODE_SDK="$GEODE_SDK" \
+            -DCMAKE_BUILD_TYPE=Release
 
-      - name: Upload mod
+          cmake --build . -j2
+
+      # Upload artifacts
+      - name: Upload build
         uses: actions/upload-artifact@v4
         with:
           name: BetterSearch
-          path: build/*.geode
+          path: build/**/*.geode
