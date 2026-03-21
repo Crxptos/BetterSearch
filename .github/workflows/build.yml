@@ -10,30 +10,31 @@ jobs:
 
     strategy:
       matrix:
-        target: [Android64, Win64]
+        target: [Android64]
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # 🚀 Build using official Geode action (handles SDK + binaries)
-      - name: Build mod
-        uses: geode-sdk/build-geode-mod@main
-        with:
-          target: ${{ matrix.target }}
-          use-cpm-cache: true
+      - name: Install Ninja
+        run: sudo apt-get update && sudo apt-get install -y ninja-build
 
-      # 🔍 Debug (VERY IMPORTANT)
-      - name: Debug output
+      - name: Setup Geode CLI
+        uses: geode-sdk/cli/.github/actions/setup@main
+
+      - name: Install SDK
         run: |
-          echo "Searching for .geode files..."
-          find . -name "*.geode"
+          geode sdk install geode-sdk
+          echo "GEODE_SDK=$GITHUB_WORKSPACE/geode-sdk" >> $GITHUB_ENV
 
-      # 📦 Upload artifact
-      - name: Upload .geode
+      - name: Install Binaries
+        run: geode sdk install-binaries
+
+      - name: Build
+        run: geode build -p Android64
+
+      - name: Upload mod
         uses: actions/upload-artifact@v4
         with:
-          name: geode-${{ matrix.target }}
-          path: |
-            build/**/*.geode
-            **/*.geode
+          name: BetterSearch
+          path: build/*.geode
