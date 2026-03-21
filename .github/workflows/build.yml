@@ -11,12 +11,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        target: [android64, win64]
+        target: [Android64, Win64]  # ✅ FIXED CASE
 
     steps:
       - uses: actions/checkout@v4
 
-      # 🔥 Fix: delete CLI folder before setup (prevents overwrite prompt)
       - name: Clean CLI
         run: rm -rf my-epic-geode-cli
 
