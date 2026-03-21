@@ -25,35 +25,23 @@ jobs:
       - name: Setup Geode CLI
         uses: geode-sdk/cli/.github/actions/setup@main
 
-      # ✅ CREATE WORKING PROFILE (no prompts, no crashes)
-      - name: Create Geode profile
+      # ✅ Create Geode CLI profile (NON-INTERACTIVE, FIXED)
+      - name: Setup Geode profile
         run: |
           mkdir -p "$GEODE_CLI_HOME"
-          cat > "$GEODE_CLI_HOME/config.json" <<EOF
-          {
-            "current": "default",
-            "profiles": {
-              "default": {
-                "name": "default",
-                "platform": "android64",
-                "gdPath": "$HOME",
-                "geodePath": "$HOME"
-              }
-            }
-          }
-          EOF
+          printf "default\nAndroid64\n$HOME\n$HOME\n\n" | geode config setup
 
-      # ✅ Install SDK
+      # ✅ Install Geode SDK manually
       - name: Install Geode SDK
         run: |
           git clone --depth 1 --branch v5.3.0 https://github.com/geode-sdk/geode.git geode-sdk
           echo "GEODE_SDK=$GITHUB_WORKSPACE/geode-sdk" >> $GITHUB_ENV
 
-      # ✅ Install binaries (NOW WORKS)
+      # ✅ Install platform binaries (NOW WORKS)
       - name: Install binaries
         run: geode sdk install-binaries --platform ${{ matrix.target }}
 
-      # ✅ Build
+      # ✅ Build the mod (manual, stable)
       - name: Build
         run: |
           mkdir build
@@ -61,13 +49,13 @@ jobs:
           cmake .. -G Ninja -DGEODE_TARGET_PLATFORM=${{ matrix.target }}
           cmake --build .
 
-      # ✅ Collect output
+      # ✅ Collect .geode output
       - name: Collect .geode
         run: |
           mkdir -p output
           find build -name "*.geode" -exec cp {} output/ \;
 
-      # ✅ Upload artifact
+      # ✅ Upload artifact (THIS is what shows on GitHub)
       - name: Upload .geode
         uses: actions/upload-artifact@v4
         with:
