@@ -23,43 +23,51 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # Install required tools
+      # Install dependencies
       - name: Install dependencies
         run: sudo apt-get update && sudo apt-get install -y ninja-build
 
-      # ✅ Install Geode CLI (ONLY THIS, no manual download!)
+      # Setup Geode CLI
       - name: Setup Geode CLI
         uses: geode-sdk/cli/.github/actions/setup@main
 
-      # ✅ Create CLI profile (non-interactive, no crash)
+      # ✅ STABLE profile (NO interactive crash)
       - name: Setup Geode profile
         run: |
-          mkdir -p "$GEODE_CLI_HOME"
-          printf "GithubActions\nandroid64\n$HOME\n$HOME\n\n" | geode config setup
+          mkdir -p "$GEODE_CLI_HOME/profiles"
 
-      # ✅ Install SDK to known location
+          cat > "$GEODE_CLI_HOME/profiles/default.json" <<EOF
+          {
+            "name": "default",
+            "platform": "${{ matrix.cli }}",
+            "gd_path": "/tmp",
+            "sdk_path": "$GITHUB_WORKSPACE/geode-sdk"
+          }
+          EOF
+
+      # Install SDK
       - name: Install SDK
         run: geode sdk install "$GITHUB_WORKSPACE/geode-sdk"
 
-      # ✅ Export SDK path
+      # Export SDK path
       - name: Set GEODE_SDK
         run: echo "GEODE_SDK=$GITHUB_WORKSPACE/geode-sdk" >> $GITHUB_ENV
 
-      # ✅ Install binaries per platform (FIXES your main error)
+      # Install binaries (CRITICAL)
       - name: Install binaries
         run: geode sdk install-binaries --platform ${{ matrix.cli }}
 
-      # ✅ Build (no duplicate installs, no conflicts)
+      # Build
       - name: Build
         uses: geode-sdk/build-geode-mod@main
         with:
           target: ${{ matrix.target }}
           install-binaries: false
           use-cpm-cache: true
-      
-      # ✅️ Upload artifacts (.geode file)
+
+      # ✅ Upload .geode file
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: geode-build-${{ matrix.platform }}
+          name: BetterSearch-${{ matrix.target }}
           path: output/*.geode
