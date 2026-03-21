@@ -1,35 +1,52 @@
-cmake_minimum_required(VERSION 3.21)
-project(BetterSearch)
+name: Build Geode Mod
 
-# C++ standard
-set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
+on:
+  push:
+  pull_request:
 
-# 🔥 Force using local Geode SDK (NO CPM fallback)
-set(GEODE_DISABLE_CPM ON)
-set(GEODE_USE_LOCAL_SDK ON)
+jobs:
+  build:
+    runs-on: ubuntu-latest
 
-# 🔥 Tell CMake where Geode is (CRITICAL)
-# This makes find_package(Geode) actually work
-if(DEFINED ENV{GEODE_SDK})
-    list(APPEND CMAKE_PREFIX_PATH $ENV{GEODE_SDK})
-endif()
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
 
-# 🔍 Find Geode
-find_package(Geode REQUIRED)
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ninja-build
 
-# 📦 Your mod source files
-add_library(${PROJECT_NAME} SHARED
-    src/BetterSearchMain.cpp
-    src/BetterSearchSong.cpp
-    src/BetterSearchLevels.cpp
-    src/FuzzyText.cpp
-)
+      - name: Setup Geode CLI
+        uses: geode-sdk/cli/.github/actions/setup@main
 
-# 🔗 Link Geode
-target_link_libraries(${PROJECT_NAME} Geode)
+      - name: Setup Geode profile
+        run: |
+          mkdir -p "$HOME/.geode"
+          printf "GithubActions\nAndroid64\n$HOME\n$HOME\n\n" | geode config setup
 
-# (Optional but recommended)
-target_compile_definitions(${PROJECT_NAME} PRIVATE
-    GEODE_IS_MOD=1
-)
+      - name: Install SDK + binaries
+        run: |
+          export GEODE_SDK="$GITHUB_WORKSPACE/geode-sdk"
+          geode sdk install "$GEODE_SDK"
+          geode sdk set-path "$GEODE_SDK"
+          geode sdk install-binaries --platform Android64
+
+      # 🔥 THIS IS THE REAL FIX
+      - name: Build
+        run: |
+          export GEODE_SDK="$GITHUB_WORKSPACE/geode-sdk"
+          mkdir build
+          cd build
+          cmake .. -G Ninja \
+            -DGEODE_TARGET_PLATFORM=Android64 \
+            -DGEODE_USE_LOCAL_SDK=ON \
+            -DGEODE_SDK="$GEODE_SDK" \
+            -DCMAKE_BUILD_TYPE=Release
+          cmake --build . -j2
+
+      - name: Upload .geode
+        uses: actions/upload-artifact@v4
+        with:
+          name: BetterSearch-Android64
+          path: "**/*.geode"
