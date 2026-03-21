@@ -25,15 +25,18 @@ jobs:
           mkdir -p "$HOME/.geode"
           printf "GithubActions\nandroid64\n$HOME\n$HOME\n\n" | geode config setup
 
-      # 🔥 Install SDK + FORCE PATH
+      # 🔥 EVERYTHING IN ONE STEP (CRITICAL)
       - name: Install SDK + binaries
         run: |
-          geode sdk install "$GITHUB_WORKSPACE/geode-sdk"
-          geode sdk set-path "$GITHUB_WORKSPACE/geode-sdk"
+          export GEODE_SDK="$GITHUB_WORKSPACE/geode-sdk"
+          geode sdk install "$GEODE_SDK"
+          geode sdk set-path "$GEODE_SDK"
           geode sdk install-binaries --platform android64
 
+      # 🔥 Build MUST also have export
       - name: Build
         run: |
+          export GEODE_SDK="$GITHUB_WORKSPACE/geode-sdk"
           mkdir build
           cd build
           cmake .. -G Ninja -DGEODE_TARGET_PLATFORM=Android64 -DCMAKE_BUILD_TYPE=Release
