@@ -25,34 +25,22 @@ jobs:
 
       # Install required tools
       - name: Install dependencies
-        run: sudo apt-get update && sudo apt-get install -y ninja-build p7zip-full
+        run: sudo apt-get update && sudo apt-get install -y ninja-build
 
-      # Install Geode CLI
+      # ✅ Install Geode CLI (ONLY THIS, no manual download!)
       - name: Setup Geode CLI
         uses: geode-sdk/cli/.github/actions/setup@main
 
-      # ✅ Create Geode profile (fixed, non-interactive)
+      # ✅ Create CLI profile (non-interactive, no crash)
       - name: Setup Geode profile
         run: |
           mkdir -p "$GEODE_CLI_HOME"
           printf "GithubActions\nandroid64\n$HOME\n$HOME\n\n" | geode config setup
 
-      # ✅ Install SDK to known path
+      # ✅ Install SDK to known location
       - name: Install SDK
         run: geode sdk install "$GITHUB_WORKSPACE/geode-sdk"
 
-      # ✅ Expose SDK to CMake
+      # ✅ Export SDK path
       - name: Set GEODE_SDK
-        run: echo "GEODE_SDK=$GITHUB_WORKSPACE/geode-sdk" >> $GITHUB_ENV
-
-      # ✅ Install platform-specific binaries
-      - name: Install binaries
-        run: geode sdk install-binaries --platform ${{ matrix.cli }}
-
-      # ✅ Build (no re-install conflicts)
-      - name: Build
-        uses: geode-sdk/build-geode-mod@main
-        with:
-          target: ${{ matrix.target }}
-          install-binaries: false
-          use-cpm-cache: true
+        run: echo "GEODE_SDK=$GITHUB_WORKSPACE/geode-sdk" >> $
