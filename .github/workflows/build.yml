@@ -23,26 +23,17 @@ jobs:
       - name: Install dependencies
         run: sudo apt-get update && sudo apt-get install -y ninja-build p7zip-full
 
-      # Setup CLI
+      # Install Geode CLI
       - name: Setup Geode CLI
         uses: geode-sdk/cli/.github/actions/setup@main
 
-      # ✅ Create CLI profile (REQUIRED)
-      - name: Setup profile
+      # ✅ Proper non-interactive profile setup
+      - name: Setup Geode profile
         run: |
           export GEODE_CLI_HOME="$GITHUB_WORKSPACE/geode-cli"
           mkdir -p "$GEODE_CLI_HOME"
 
-          cat > "$GEODE_CLI_HOME/config.json" <<EOF
-          {
-            "currentProfile": "default",
-            "profiles": {
-              "default": {
-                "name": "default"
-              }
-            }
-          }
-          EOF
+          printf "GithubActions\n\n\n\n" | geode config setup
 
           echo "GEODE_CLI_HOME=$GEODE_CLI_HOME" >> $GITHUB_ENV
 
@@ -50,14 +41,14 @@ jobs:
       - name: Install SDK
         run: geode sdk install
 
-      # ✅ CRITICAL FIX (YOU CONTROL PLATFORM HERE)
-      - name: Install Binaries
+      # ✅ Install binaries WITH platform (critical)
+      - name: Install binaries
         run: geode sdk install-binaries --platform ${{ matrix.cli }}
 
-      # ✅ Build WITHOUT reinstalling binaries
+      # ✅ Build (skip internal broken binary install)
       - name: Build
         uses: geode-sdk/build-geode-mod@main
         with:
           target: ${{ matrix.target }}
+          install-binaries: false
           use-cpm-cache: true
-          install-binaries: false   # 🔥 THIS LINE FIXES YOUR ERROR
