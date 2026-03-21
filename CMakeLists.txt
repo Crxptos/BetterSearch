@@ -1,17 +1,15 @@
 cmake_minimum_required(VERSION 3.21)
 project(BetterSearch)
 
-set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_STANDARD 17)
 
-# 🔥 Use Geode (handled by CLI / action automatically)
-find_package(Geode REQUIRED)
+# ✅ This is REQUIRED for Geode
+include($ENV{GEODE_SDK}/cmake/Geode.cmake)
 
-add_library(${PROJECT_NAME} SHARED
+# ✅ Your mod
+geode_add_mod(BetterSearch
     src/BetterSearchMain.cpp
-    src/BetterSearchSong.cpp
     src/BetterSearchLevels.cpp
+    src/BetterSearchSong.cpp
     src/FuzzyText.cpp
 )
-
-target_link_libraries(${PROJECT_NAME} Geode)
