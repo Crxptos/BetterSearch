@@ -16,11 +16,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # Install Geode CLI and SDK
-      - name: Setup Geode CLI
-        uses: geode-sdk/cli/.github/actions/setup@main
+      # 🔥 Fix: delete CLI folder before setup (prevents overwrite prompt)
+      - name: Clean CLI
+        run: rm -rf my-epic-geode-cli
 
-      # Build mod
       - name: Build Mod
         uses: geode-sdk/build-geode-mod@main
         with:
