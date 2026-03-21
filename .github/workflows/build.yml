@@ -16,28 +16,28 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # ✅ Minimal deps only
+      # Install dependencies
       - name: Install dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y ninja-build
 
-      # ✅ Swap (prevents random cancels)
+      # Increase memory (prevents random cancel)
       - name: Increase swap
         run: |
-          sudo fallocate -l 2G /myswap
+          sudo fallocate -l 2G /myswap || true
           sudo chmod 600 /myswap
-          sudo mkswap /myswap
-          sudo swapon /myswap
+          sudo mkswap /myswap || true
+          sudo swapon /myswap || true
 
-      # 🚀 ONLY THIS handles EVERYTHING
+      # 🚀 Build (NO CACHE = FIXES YOUR ERROR)
       - name: Build mod
         uses: geode-sdk/build-geode-mod@main
         with:
           target: ${{ matrix.target }}
-          use-cpm-cache: true
+          use-cpm-cache: false
 
-      # ✅ Upload result
+      # Upload result
       - name: Upload .geode
         uses: actions/upload-artifact@v4
         with:
