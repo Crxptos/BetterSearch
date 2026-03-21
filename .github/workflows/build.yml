@@ -20,7 +20,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # Install required tools
+      # Install dependencies
       - name: Install dependencies
         run: sudo apt-get update && sudo apt-get install -y ninja-build p7zip-full
 
@@ -28,14 +28,26 @@ jobs:
       - name: Setup Geode CLI
         uses: geode-sdk/cli/.github/actions/setup@main
 
-      # ✅ FIXED: Non-interactive profile setup (WITH platform)
+      # ✅ FINAL FIX: manual profile (NO interactive setup)
       - name: Setup Geode profile
         run: |
           export GEODE_CLI_HOME="$GITHUB_WORKSPACE/geode-cli"
-          mkdir -p "$GEODE_CLI_HOME"
+          mkdir -p "$GEODE_CLI_HOME/profiles"
 
-          # Provide profile name + platform
-          printf "GithubActions\nandroid64\n\n\n\n" | geode config setup
+          # Create config
+          cat > "$GEODE_CLI_HOME/config.json" <<EOF
+          {
+            "currentProfile": "GithubActions"
+          }
+          EOF
+
+          # Create profile
+          cat > "$GEODE_CLI_HOME/profiles/GithubActions.json" <<EOF
+          {
+            "name": "GithubActions",
+            "platform": "android64"
+          }
+          EOF
 
           echo "GEODE_CLI_HOME=$GEODE_CLI_HOME" >> $GITHUB_ENV
 
@@ -43,11 +55,11 @@ jobs:
       - name: Install SDK
         run: geode sdk install
 
-      # ✅ Install binaries correctly
+      # Install binaries (IMPORTANT)
       - name: Install binaries
         run: geode sdk install-binaries --platform ${{ matrix.cli }}
 
-      # ✅ Build (skip broken internal binary install)
+      # Build mod
       - name: Build
         uses: geode-sdk/build-geode-mod@main
         with:
