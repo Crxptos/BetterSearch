@@ -38,7 +38,7 @@ jobs:
       # -----------------------------
       - name: Setup Geode Profile
         run: |
-          geode config setup --silent
+          geode config setup
 
       # -----------------------------
       # Install SDK + binaries
