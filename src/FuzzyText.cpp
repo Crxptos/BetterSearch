@@ -1,11 +1,11 @@
 #include "FuzzyText.hpp"
 
 #include <algorithm>
-#include <string>
+#include <vector>
 
 int FuzzyText::levenshteinDistance(const std::string& s1, const std::string& s2) {
-    const size_t len1 = s1.size();
-    const size_t len2 = s2.size();
+    size_t len1 = s1.size();
+    size_t len2 = s2.size();
 
     std::vector<std::vector<int>> dp(len1 + 1, std::vector<int>(len2 + 1));
 
@@ -17,9 +17,9 @@ int FuzzyText::levenshteinDistance(const std::string& s1, const std::string& s2)
             int cost = (s1[i - 1] == s2[j - 1]) ? 0 : 1;
 
             dp[i][j] = std::min({
-                dp[i - 1][j] + 1,      // deletion
-                dp[i][j - 1] + 1,      // insertion
-                dp[i - 1][j - 1] + cost // substitution
+                dp[i - 1][j] + 1,
+                dp[i][j - 1] + 1,
+                dp[i - 1][j - 1] + cost
             });
         }
     }
@@ -30,17 +30,10 @@ int FuzzyText::levenshteinDistance(const std::string& s1, const std::string& s2)
 int FuzzyText::score(const std::string& query, const std::string& text) {
     if (query.empty() || text.empty()) return 0;
 
-    int distance = levenshteinDistance(query, text);
-
+    int dist = levenshteinDistance(query, text);
     int maxLen = std::max(query.size(), text.size());
-    if (maxLen == 0) return 0;
 
-    // Convert distance → similarity score (0–100)
-    int similarity = static_cast<int>(
-        (1.0 - (double)distance / maxLen) * 100
-    );
-
-    return std::max(0, similarity);
+    return maxLen == 0 ? 0 : (100 - (dist * 100 / maxLen));
 }
 
 bool FuzzyText::matches(const std::string& query, const std::string& text, int threshold) {
