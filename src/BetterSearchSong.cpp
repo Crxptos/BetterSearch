@@ -11,7 +11,6 @@ class $modify(BetterSearchSong, LevelSearchLayer) {
     bool init(int p0) {
         if (!LevelSearchLayer::init(p0)) return false;
 
-        // 🔘 Create custom image button
         auto spr = CCSprite::create("BetterSearchButton.png");
 
         if (!spr) {
@@ -25,10 +24,7 @@ class $modify(BetterSearchSong, LevelSearchLayer) {
                 menu_selector(BetterSearchSong::onNotice)
             );
 
-            m_fields->m_noticeBtn->setPosition({ 200, -100 });
-            m_fields->m_noticeBtn->setVisible(true);
-
-            // ⚠️ safer than m_buttonMenu
+            m_fields->m_noticeBtn->setPosition({200, -100});
             this->addChild(m_fields->m_noticeBtn);
         }
 
