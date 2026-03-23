@@ -1,27 +1,29 @@
 {
-  "id": "crxptos.bettersearch",
-  "name": "BetterSearch",
-  "developer": "Crxptos",
-  "description": "Advanced search for Geometry Dash with fuzzy matching, live results, and smart suggestions.",
-  "version": "1.0.0",
-
   "geode": "5.3.0",
   "gd": {
-    "android": "2.2081",
-    "win": "2.2081"
+    "android": "2.2081"
   },
+
+  "id": "crxptos.bettersearch",
+  "name": "BetterSearch",
+  "version": "1.0.0",
+  "developer": "Crxptos",
+  "description": "Search Geometry Dash levels using smarter and fuzzy search.",
 
   "tags": [
-    "utility",
     "search",
+    "utility",
+    "levels",
     "ui",
-    "enhancement",
-    "quality-of-life"
+    "enhancement"
   ],
 
-  "dependencies": {
-    "geode.node-ids": ">=1.23.0"
-  },
+  "dependencies": [
+    {
+      "id": "geode.node-ids",
+      "version": ">=1.23.0"
+    }
+  ],
 
   "resources": {
     "sprites": [
