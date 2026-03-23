@@ -14,34 +14,30 @@ class $modify(BetterSearchLevels, LevelSearchLayer) {
     bool init(int p0) {
         if (!LevelSearchLayer::init(p0)) return false;
 
-        // 📜 Create scrollable area
+        // 📜 Scroll area
         m_fields->m_scroll = ScrollLayer::create({300, 200});
         m_fields->m_scroll->setPosition({50, 100});
         this->addChild(m_fields->m_scroll);
 
-        // 📦 Content layer inside scroll
+        // 📦 Content layer
         m_fields->m_content = CCLayer::create();
         m_fields->m_scroll->m_contentLayer->addChild(m_fields->m_content);
 
         return true;
     }
 
-    // 🔗 Called from BetterSearchMain.cpp
     void updateBetterSearchUI(std::vector<std::string> results) {
         m_fields->m_results = results;
 
-        // Clear old results
         m_fields->m_content->removeAllChildren();
 
-        float y = results.size() * 35;
+        float y = static_cast<float>(results.size() * 35);
 
         for (int i = 0; i < results.size(); i++) {
-            // Background
             auto bg = CCScale9Sprite::create("square02_small.png");
             bg->setContentSize({280, 30});
             bg->setOpacity(i % 2 == 0 ? 40 : 60);
 
-            // Text
             auto label = CCLabelBMFont::create(results[i].c_str(), "bigFont.fnt");
             label->setAnchorPoint({0, 0.5f});
             label->setPosition({10, 15});
@@ -49,7 +45,6 @@ class $modify(BetterSearchLevels, LevelSearchLayer) {
 
             bg->addChild(label);
 
-            // Clickable button
             auto btn = CCMenuItemSpriteExtra::create(
                 bg,
                 this,
@@ -59,17 +54,20 @@ class $modify(BetterSearchLevels, LevelSearchLayer) {
             btn->setTag(i);
             btn->setPosition({150, y});
 
-            this->m_buttonMenu->addChild(btn);
+            // ✅ SAFE (no m_buttonMenu)
+            this->addChild(btn);
 
             y -= 35;
         }
 
-        // Update scroll size
-        m_fields->m_content->setContentSize({300, results.size() * 35});
+        m_fields->m_content->setContentSize({
+            300,
+            static_cast<float>(results.size() * 35)
+        });
+
         m_fields->m_scroll->updateLayout();
     }
 
-    // 👆 When user taps a result
     void onResult(CCObject* sender) {
         auto btn = static_cast<CCMenuItemSpriteExtra*>(sender);
         int index = btn->getTag();
@@ -80,10 +78,8 @@ class $modify(BetterSearchLevels, LevelSearchLayer) {
 
         log::info("Selected: {}", selected);
 
-        // Fill search box
         this->m_searchInput->setString(selected.c_str());
 
-        // Run real GD search
         LevelSearchLayer::onSearch(nullptr);
     }
 };
