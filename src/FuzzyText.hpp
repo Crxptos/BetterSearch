@@ -1,9 +1,11 @@
 #pragma once
+
 #include <string>
 #include <vector>
 
-// 🔢 Distance between two words
-int levenshtein(const std::string& a, const std::string& b);
-
-// 🔍 Find closest match from a list
-std::string findBestMatch(std::string input, std::vector<std::string> words);
+class FuzzyText {
+public:
+    static int levenshteinDistance(const std::string& s1, const std::string& s2);
+    static int score(const std::string& query, const std::string& text);
+    static bool matches(const std::string& query, const std::string& text, int threshold = 70);
+};
