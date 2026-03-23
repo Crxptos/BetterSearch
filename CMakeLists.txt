@@ -1,28 +1,23 @@
 cmake_minimum_required(VERSION 3.21)
-project(BetterSearch VERSION 1.0.0)
+
+project(BetterSearch)
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 
-# Collect all source files
-file(GLOB_RECURSE SOURCES
-    /src
-  BetterSearchMain.cpp
-  BetterSearchSong.cpp
-  BetterSearchLevels.cpp
-  FuzzyText.cpp
+# ✅ Load Geode SDK (THIS is the correct way)
+add_subdirectory($ENV{GEODE_SDK} ${CMAKE_BINARY_DIR}/geode)
+
+# ✅ Explicit source files (no glob = more stable)
+set(SOURCES
+    src/BetterSearchMain.cpp
+    src/BetterSearchSong.cpp
+    src/BetterSearchLevels.cpp
+    src/FuzzyText.cpp
 )
 
+# ✅ Build shared library
 add_library(${PROJECT_NAME} SHARED ${SOURCES})
 
-# Ensure GEODE_SDK is set
-if(NOT DEFINED ENV{GEODE_SDK})
-    message(FATAL_ERROR "GEODE_SDK not set")
-endif()
-
-# Include Geode SDK manually (NO find_package!)
-include($ENV{GEODE_SDK}/cmake/Geode.cmake)
-
-# Setup mod
+# ✅ Setup Geode mod
 setup_geode_mod(${PROJECT_NAME})
