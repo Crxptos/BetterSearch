@@ -5,32 +5,33 @@
 using namespace geode::prelude;
 
 class $modify(BetterSearchLevels, LevelSearchLayer) {
-    ScrollLayer* m_scroll = nullptr;
-    CCLayer* m_content = nullptr;
-
-    std::vector<std::string> m_results;
+    struct Fields {
+        ScrollLayer* m_scroll = nullptr;
+        CCLayer* m_content = nullptr;
+        std::vector<std::string> m_results;
+    };
 
     bool init(int p0) {
         if (!LevelSearchLayer::init(p0)) return false;
 
         // 📜 Create scrollable area
-        m_scroll = ScrollLayer::create({300, 200});
-        m_scroll->setPosition({50, 100});
-        this->addChild(m_scroll);
+        m_fields->m_scroll = ScrollLayer::create({300, 200});
+        m_fields->m_scroll->setPosition({50, 100});
+        this->addChild(m_fields->m_scroll);
 
         // 📦 Content layer inside scroll
-        m_content = CCLayer::create();
-        m_scroll->m_contentLayer->addChild(m_content);
+        m_fields->m_content = CCLayer::create();
+        m_fields->m_scroll->m_contentLayer->addChild(m_fields->m_content);
 
         return true;
     }
 
     // 🔗 Called from BetterSearchMain.cpp
     void updateBetterSearchUI(std::vector<std::string> results) {
-        m_results = results;
+        m_fields->m_results = results;
 
         // Clear old results
-        m_content->removeAllChildren();
+        m_fields->m_content->removeAllChildren();
 
         float y = results.size() * 35;
 
@@ -48,7 +49,7 @@ class $modify(BetterSearchLevels, LevelSearchLayer) {
 
             bg->addChild(label);
 
-            // Clickable button (touch-friendly)
+            // Clickable button
             auto btn = CCMenuItemSpriteExtra::create(
                 bg,
                 this,
@@ -64,8 +65,8 @@ class $modify(BetterSearchLevels, LevelSearchLayer) {
         }
 
         // Update scroll size
-        m_content->setContentSize({300, results.size() * 35});
-        m_scroll->updateLayout();
+        m_fields->m_content->setContentSize({300, results.size() * 35});
+        m_fields->m_scroll->updateLayout();
     }
 
     // 👆 When user taps a result
@@ -73,9 +74,9 @@ class $modify(BetterSearchLevels, LevelSearchLayer) {
         auto btn = static_cast<CCMenuItemSpriteExtra*>(sender);
         int index = btn->getTag();
 
-        if (index < 0 || index >= m_results.size()) return;
+        if (index < 0 || index >= m_fields->m_results.size()) return;
 
-        std::string selected = m_results[index];
+        std::string selected = m_fields->m_results[index];
 
         log::info("Selected: {}", selected);
 
