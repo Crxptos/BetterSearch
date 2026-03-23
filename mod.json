@@ -18,12 +18,10 @@
     "enhancement"
   ],
 
-  "dependencies": [
-    {
+  "dependencies": {
       "id": "geode.node-ids",
       "version": ">=1.23.0"
-    }
-  ],
+    },
 
   "resources": {
     "sprites": [
