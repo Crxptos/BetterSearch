@@ -2,7 +2,7 @@ name: Build Geode Mod
 
 on:
   push:
-    branches: ["**"]
+    branches: ['**']
   workflow_dispatch:
 
 jobs:
@@ -10,43 +10,55 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # 📥 Checkout repo
       - name: Checkout
         uses: actions/checkout@v4
 
+      # 🧱 Install dependencies
       - name: Install dependencies
         run: |
           sudo apt update
           sudo apt install -y git cmake ninja-build unzip curl
 
-      # ✅ Clone SDK manually (NO geode CLI)
-      - name: Clone Geode SDK
+      # ⚙️ Install Geode CLI (stable method)
+      - name: Install Geode CLI
         run: |
-          git clone --depth=1 https://github.com/geode-sdk/geode.git geode-sdk
+          mkdir geode-cli
+          curl -L https://github.com/geode-sdk/cli/releases/latest/download/geode-cli-linux.zip -o geode.zip
+          unzip geode.zip -d geode-cli
+          chmod +x geode-cli/geode
+          echo "$PWD/geode-cli" >> $GITHUB_PATH
 
-      # ✅ Set environment variable
+      # 📦 Install SDK + binaries (NO PROFILE REQUIRED 🎉)
+      - name: Install Geode SDK
+        run: |
+          geode sdk install geode-sdk
+          geode sdk install-binaries
+
+      # 🌍 Force environment variable (CRITICAL FIX)
       - name: Set GEODE_SDK
         run: echo "GEODE_SDK=$GITHUB_WORKSPACE/geode-sdk" >> $GITHUB_ENV
 
-      # ✅ Install prebuilt binaries (fixes Codegen error)
-      - name: Install Geode Binaries
-        run: |
-          mkdir -p geode-sdk/bin/android64
-          curl -L https://github.com/geode-sdk/geode/releases/download/v5.3.0/android64.zip -o android.zip
-          unzip android.zip -d geode-sdk/bin/android64
-
-      # ✅ Build
-      - name: Build Mod
+      # 🔨 Build mod
+      - name: Build
         run: |
           mkdir build
           cd build
           cmake .. -G Ninja \
             -DGEODE_TARGET_PLATFORM=Android64 \
             -DCMAKE_BUILD_TYPE=Release
-          cmake --build . -j2
+          cmake --build . -j4
 
-      # ✅ Upload artifact
-      - name: Upload Build
+      # 📦 Package into .geode
+      - name: Package mod
+        run: |
+          geode package build
+
+      # 📤 Upload artifact
+      - name: Upload .geode
         uses: actions/upload-artifact@v4
         with:
-          name: BetterSearch-Android64
-          path: build/*.so
+          name: BetterSearch-Geode
+          path: |
+            *.geode
+            build/*.geode
