@@ -2,7 +2,7 @@ name: Build Geode Mod
 
 on:
   push:
-    branches: [ "**" ]
+    branches: ['**']
   workflow_dispatch:
 
 jobs:
@@ -10,53 +10,65 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # 📥 Checkout repo
       - name: Checkout
         uses: actions/checkout@v4
 
-      # ✅ Install dependencies
+      # 🧰 Install dependencies
       - name: Install dependencies
         run: |
           sudo apt update
-          sudo apt install -y git cmake ninja-build unzip
+          sudo apt install -y git cmake ninja-build unzip curl
 
-      # ✅ Install Geode CLI (FIXED DOWNLOAD)
+      # ⚙️ Install Geode CLI (FIXED download)
       - name: Install Geode CLI
         run: |
-          mkdir geode-cli
+          mkdir -p geode-cli
           curl -L https://github.com/geode-sdk/cli/releases/download/v3.7.4/geode-cli-v3.7.4-linux.zip -o geode.zip
           unzip geode.zip -d geode-cli
           chmod +x geode-cli/geode
           echo "$PWD/geode-cli" >> $GITHUB_PATH
 
-      # ✅ Setup Geode profile (NON-INTERACTIVE FIX)
-      - name: Setup Geode profile
+      # 🧠 Create Geode profile (CRITICAL FIX)
+      - name: Create Geode profile
         run: |
           mkdir -p $HOME/.config/geode
-          echo '{}' > $HOME/.config/geode/config.json
+          cat > $HOME/.config/geode/config.json <<EOF
+          {
+            "currentProfile": "default",
+            "profiles": {
+              "default": {
+                "name": "default",
+                "gdPath": "",
+                "platform": "android64"
+              }
+            }
+          }
+          EOF
 
-      # ✅ Install SDK + binaries
+      # 📦 Install SDK + binaries
       - name: Install Geode SDK
         run: |
           geode sdk install geode-sdk
           geode sdk install-binaries
 
-      # ✅ Export SDK path
+      # 🌍 Export SDK path
       - name: Set GEODE_SDK
         run: echo "GEODE_SDK=$GITHUB_WORKSPACE/geode-sdk" >> $GITHUB_ENV
 
-      # ✅ Build
-      - name: Build Mod
+      # 🔨 Build mod
+      - name: Build
         run: |
           mkdir build
           cd build
           cmake .. -G Ninja \
             -DGEODE_TARGET_PLATFORM=Android64 \
             -DCMAKE_BUILD_TYPE=Release
-          cmake --build . -j4
+          cmake --build . -j2
 
-      # ✅ Upload output
+      # 📦 Upload artifact
       - name: Upload build
         uses: actions/upload-artifact@v4
         with:
-          name: BetterSearch
-          path: build/*.geode
+          name: BetterSearch-Android64
+          path: build/*.so
