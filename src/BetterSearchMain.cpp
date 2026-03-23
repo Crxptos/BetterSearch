@@ -1,8 +1,3 @@
-#include <Geode/Geode.hpp>
-#include <Geode/modify/LevelSearchLayer.hpp>
-
-using namespace geode::prelude;
-
 class $modify(BetterSearchMain, LevelSearchLayer) {
 
     void onSearch(CCObject* sender) {
@@ -13,23 +8,20 @@ class $modify(BetterSearchMain, LevelSearchLayer) {
             return;
         }
 
-        log::info("BetterSearch query: {}", query);
-
-        // ✅ Fake results (safe, no web API)
         std::vector<std::string> results = {
             "Bloodbath",
             "Bloodlust",
-            "Bloody",
-            "Future Funk",
-            "Sunset Sandstorm"
+            "Bloody"
         };
 
-        // 🔗 Send to BetterSearchLevels UI
-        if (auto layer = typeinfo_cast<LevelSearchLayer*>(this)) {
-            static_cast<BetterSearchLevels*>(layer)->updateBetterSearchUI(results);
-        }
+        this->updateBetterSearchUI(results);
 
-        // Keep original GD search
         LevelSearchLayer::onSearch(sender);
+    }
+
+    void updateBetterSearchUI(std::vector<std::string> results) {
+        for (auto const& r : results) {
+            log::info("Result: {}", r);
+        }
     }
 };
