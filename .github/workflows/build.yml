@@ -10,55 +10,20 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 📥 Checkout repo
+      # 📥 Get your code
       - name: Checkout
         uses: actions/checkout@v4
 
-      # 🧱 Install dependencies
-      - name: Install dependencies
-        run: |
-          sudo apt update
-          sudo apt install -y git cmake ninja-build unzip curl
+      # 🔨 Build using official Geode action (does EVERYTHING)
+      - name: Build Mod
+        uses: geode-sdk/build-geode-mod@main
+        with:
+          target: Android64
+          combine: true
 
-      # ⚙️ Install Geode CLI (stable method)
-      - name: Install Geode CLI
-        run: |
-          mkdir geode-cli
-          curl -L https://github.com/geode-sdk/cli/releases/latest/download/geode-cli-linux.zip -o geode.zip
-          unzip geode.zip -d geode-cli
-          chmod +x geode-cli/geode
-          echo "$PWD/geode-cli" >> $GITHUB_PATH
-
-      # 📦 Install SDK + binaries (NO PROFILE REQUIRED 🎉)
-      - name: Install Geode SDK
-        run: |
-          geode sdk install geode-sdk
-          geode sdk install-binaries
-
-      # 🌍 Force environment variable (CRITICAL FIX)
-      - name: Set GEODE_SDK
-        run: echo "GEODE_SDK=$GITHUB_WORKSPACE/geode-sdk" >> $GITHUB_ENV
-
-      # 🔨 Build mod
-      - name: Build
-        run: |
-          mkdir build
-          cd build
-          cmake .. -G Ninja \
-            -DGEODE_TARGET_PLATFORM=Android64 \
-            -DCMAKE_BUILD_TYPE=Release
-          cmake --build . -j4
-
-      # 📦 Package into .geode
-      - name: Package mod
-        run: |
-          geode package build
-
-      # 📤 Upload artifact
-      - name: Upload .geode
+      # 📤 Upload output
+      - name: Upload Build
         uses: actions/upload-artifact@v4
         with:
-          name: BetterSearch-Geode
-          path: |
-            *.geode
-            build/*.geode
+          name: BetterSearch
+          path: build/*.geode
