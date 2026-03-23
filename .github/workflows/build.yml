@@ -2,7 +2,7 @@ name: Build Geode Mod
 
 on:
   push:
-    branches: ['**']
+    branches: ["**"]
   workflow_dispatch:
 
 jobs:
@@ -10,54 +10,32 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 📥 Checkout repo
       - name: Checkout
         uses: actions/checkout@v4
 
-      # 🧰 Install dependencies
       - name: Install dependencies
         run: |
           sudo apt update
           sudo apt install -y git cmake ninja-build unzip curl
 
-      # ⚙️ Install Geode CLI (FIXED download)
-      - name: Install Geode CLI
+      # ✅ Clone SDK manually (NO geode CLI)
+      - name: Clone Geode SDK
         run: |
-          mkdir -p geode-cli
-          curl -L https://github.com/geode-sdk/cli/releases/download/v3.7.4/geode-cli-v3.7.4-linux.zip -o geode.zip
-          unzip geode.zip -d geode-cli
-          chmod +x geode-cli/geode
-          echo "$PWD/geode-cli" >> $GITHUB_PATH
+          git clone --depth=1 https://github.com/geode-sdk/geode.git geode-sdk
 
-      # 🧠 Create Geode profile (CRITICAL FIX)
-      - name: Create Geode profile
-        run: |
-          mkdir -p $HOME/.config/geode
-          cat > $HOME/.config/geode/config.json <<EOF
-          {
-            "currentProfile": "default",
-            "profiles": {
-              "default": {
-                "name": "default",
-                "gdPath": "",
-                "platform": "android64"
-              }
-            }
-          }
-          EOF
-
-      # 📦 Install SDK + binaries
-      - name: Install Geode SDK
-        run: |
-          geode sdk install geode-sdk
-          geode sdk install-binaries
-
-      # 🌍 Export SDK path
+      # ✅ Set environment variable
       - name: Set GEODE_SDK
         run: echo "GEODE_SDK=$GITHUB_WORKSPACE/geode-sdk" >> $GITHUB_ENV
 
-      # 🔨 Build mod
-      - name: Build
+      # ✅ Install prebuilt binaries (fixes Codegen error)
+      - name: Install Geode Binaries
+        run: |
+          mkdir -p geode-sdk/bin/android64
+          curl -L https://github.com/geode-sdk/geode/releases/download/v5.3.0/android64.zip -o android.zip
+          unzip android.zip -d geode-sdk/bin/android64
+
+      # ✅ Build
+      - name: Build Mod
         run: |
           mkdir build
           cd build
@@ -66,8 +44,8 @@ jobs:
             -DCMAKE_BUILD_TYPE=Release
           cmake --build . -j2
 
-      # 📦 Upload artifact
-      - name: Upload build
+      # ✅ Upload artifact
+      - name: Upload Build
         uses: actions/upload-artifact@v4
         with:
           name: BetterSearch-Android64
